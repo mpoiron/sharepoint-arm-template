@@ -130,7 +130,7 @@
           "ModulesUrl": "[parameters('sqlPrepareModulesURL')]",
           "ConfigurationFunction": "[parameters('sqlPreparationFunction')]",
           "Properties": {
-                "DNSServer": "[parameters('DNSServerAddress')]"
+            "DNSServer": "[parameters('DNSServerAddress')]"
           }
         },
         "protectedSettings": null

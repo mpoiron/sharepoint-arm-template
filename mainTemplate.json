@@ -14,7 +14,7 @@
       "metadata": {
         "description": "The region to deploy the resources into"
       },
-      "defaultValue":"[resourceGroup().location]"
+      "defaultValue": "[resourceGroup().location]"
     },
     "virtualNetworkName": {
       "type": "string",
@@ -200,7 +200,6 @@
         "Premium_LRS",
         "Standard_LRS",
         "Standard_GRS"
-
       ],
       "metadata": {
         "description": "The type of the Storage Account created"
@@ -209,7 +208,7 @@
     }
   },
   "variables": {
-    "assetLocation":"[concat(parameters('baseUrl'),'/dsc')]",
+    "assetLocation": "[concat(parameters('baseUrl'),'/dsc')]",
     "configDatabaseName": "SP_Config",
     "administrationContentDatabaseName": "SP_AdminContent",
     "contentDatabaseName": "spARM_Content",
@@ -283,12 +282,12 @@
         }
       }
     ],
-    "SpPublicIpexisting":"[resourceId(parameters('spPublicIPRGName'),concat('Microsoft.Network','/','publicIPAddresses'),parameters('sppublicIPAddressName'))]",
+    "SpPublicIpexisting": "[resourceId(parameters('spPublicIPRGName'),concat('Microsoft.Network','/','publicIPAddresses'),parameters('sppublicIPAddressName'))]",
     "SpPublicIpnew": "[resourceId(concat('Microsoft.Network','/','publicIPAddresses'),parameters('sppublicIPAddressName'))]",
     "adPublicIpResourceId": "[resourceId(concat('Microsoft.Network','/','publicIPAddresses'),variables('adpublicIPAddressName'))]",
     "sqlPublicIpResourceId": "[resourceId(concat('Microsoft.Network','/','publicIPAddresses'),variables('sqlpublicIPAddressName'))]",
-    "spFQDN":"[concat(parameters('spDNSPrefix'),'.',toLower(trim(replace(parameters('location'),' ' ,''))),'.cloudapp.azure.com')]",
-    "splbResourceId":"[resourceId(concat('Microsoft.Network','/','loadBalancers'),variables('spLBName'))]",
+    "spFQDN": "[concat(parameters('spDNSPrefix'),'.',toLower(trim(replace(parameters('location'),' ' ,''))),'.cloudapp.azure.com')]",
+    "splbResourceId": "[resourceId(concat('Microsoft.Network','/','loadBalancers'),variables('spLBName'))]",
     "adModulesURL": "[concat(variables('assetLocation'),'/CreateADPDC.ps1.zip')]",
     "adConfigurationFunction": "CreateADPDC.ps1\\CreateADPDC",
     "sqlConfigureModulesURL": "[concat(variables('assetLocation'),'/ConfigureSqlServer.ps1.zip')]",

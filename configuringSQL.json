@@ -49,7 +49,7 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "ModulesUrl": "[parameters('sqlConfgureModulesURL')]",
-          "wmfVersion": "4.0",
+          "wmfVersion": "5.1",
           "ConfigurationFunction": "[parameters('sqlConfigurationFunction')]",
           "Properties": {
             "DomainName": "[parameters('domainName')]",

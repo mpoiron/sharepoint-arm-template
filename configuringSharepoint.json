@@ -73,7 +73,7 @@
         "autoUpgradeMinorVersion": true,
         "settings": {
           "ModulesUrl": "[parameters('spConfgureModulesURL')]",
-          "wmfVersion": "4.0",
+          "wmfVersion": "5.1",
           "ConfigurationFunction": "[parameters('spConfigurationFunction')]",
           "Properties": {
             "DomainName": "[parameters('domainName')]",

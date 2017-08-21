@@ -1,0 +1,84 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "spVersion": {
+      "type": "string",
+      "allowedValues": [
+        "2013",
+        "2016"
+      ]
+    },
+    "sqlVersion": {
+      "type": "string",
+      "allowedValues": [
+        "SQL2014SP2-WS2012R2",
+        "SQL2016SP1-WS2016"
+      ]
+    },
+    "subnetRange": {
+      "type": "string"
+    },
+    "adminUserName": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "sqlVMSize": {
+      "type": "string"
+    },
+    "spVMSize": {
+      "type": "string"
+    },
+    "spDNSPrefix": {
+      "type": "string"
+    },
+    "domainName": {
+      "type": "string"
+    },
+    "sqlServerServiceAccountUserName": {
+      "type": "string",
+      "defaultValue": "sqlservice"
+    },
+    "sqlServerServiceAccountPassword": {
+      "type": "securestring"
+    },
+    "sharePointSetupUserAccountUserName": {
+      "type": "string",
+      "defaultValue": "sp_setup"
+    },
+    "sharePointSetupUserAccountPassword": {
+      "type": "securestring"
+    },
+    "sharePointFarmAccountUserName": {
+      "type": "string",
+      "defaultValue": "sp_farm"
+    },
+    "sharePointFarmAccountPassword": {
+      "type": "securestring"
+    },
+    "sharePointFarmPassphrasePassword": {
+      "type": "securestring"
+    },
+    "defaultSiteName": {
+      "type": "string"
+    },
+    "defaultSiteTemplateName": {
+      "type": "string",
+      "defaultValue": "STS#0"
+    },
+    "defaultSiteConfigDatabaseName": {
+      "type": "string"
+    },
+    "adminContentDatabaseName": {
+      "type": "string"
+    },
+    "storageAccountName": {
+      "type": "string"
+    }
+  },
+  "resources": [
+  ],
+  "outputs": {}
+}

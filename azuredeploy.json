@@ -10,19 +10,6 @@
       },
       "defaultValue": "https://raw.githubusercontent.com/Azure/azure-quickstart-templates/master/sharepoint-three-vm"
     },
-    "adDNSPrefix": {
-      "type": "string",
-      "metadata": {
-        "description": "The DNS Prefix for the AD DC Public IP Address"
-      }
-    },
-    "adNicIPAddress": {
-      "type": "string",
-      "metadata": {
-        "description": "The IP address of the new AD VM"
-      },
-      "defaultValue": "10.0.0.4"
-    },
     "adUsePublicIP": {
       "type": "bool",
       "defaultValue": false
@@ -33,6 +20,12 @@
         "description": "The size of the AD VM Created"
       },
       "defaultValue": "Standard_A2_V2"
+    },
+    "commonDNSPrefix": {
+      "type": "string",
+      "metadata": {
+        "description": "The DNS Prefix for the Public IP Addresses"
+      }
     },
     "commonStorageAccountNamePrefix": {
       "type": "string",
@@ -52,26 +45,11 @@
       },
       "defaultValue": "Premium_LRS"
     },
-    "commonSubnet": {
-      "type": "string",
-      "metadata": {
-        "description": "The address range of the common subnet created in the new VNET"
-      },
-      "defaultValue": "10.0.0.0/24"
+    "create2013Farm": {
+      "type": "bool"
     },
-    "commonVirtualNetworkAddressRange": {
-      "type": "string",
-      "metadata": {
-        "description": "The address range of the new VNET"
-      },
-      "defaultValue": "10.0.0.0/16"
-    },
-    "commonVirtualNetworkName": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the Virtual Network to Create"
-      },
-      "defaultValue": "spfarmVNET"
+    "create2016Farm": {
+      "type": "bool"
     },
     "domainName": {
       "type": "string",
@@ -84,7 +62,8 @@
       "type": "string",
       "metadata": {
         "description": "The Sharepoint Default Site Name"
-      }
+      },
+      "defaultValue": "Default"
     },
     "spDefaultSiteTemplateName": {
       "type": "string",
@@ -138,7 +117,7 @@
         "description": "The password forthe Administrator account of the new VM and Domain"
       }
     },
-    "userSPFarmUserName": {
+    "userSPFarmUsername": {
       "type": "string",
       "metadata": {
         "description": "The Sharepoint Farm account name"
@@ -151,7 +130,7 @@
         "description": "The Sharepoint Farm account password"
       }
     },
-    "userSPSetupName": {
+    "userSPSetupUsername": {
       "type": "string",
       "metadata": {
         "description": "The Sharepoint Setup account name"
@@ -164,7 +143,7 @@
         "description": "The Sharepoint Setup account password"
       }
     },
-    "userSQLServiceUserName": {
+    "userSQLServiceUsername": {
       "type": "string",
       "metadata": {
         "description": "The SQL Server Service account name"
@@ -191,8 +170,9 @@
     "commonNetworkSecurityGroupName": "[concat(parameters('spFarmName'), '-common-nsg')]",
     "commonStorageAccountName": "[concat(parameters('commonStorageAccountNamePrefix'), '01')]",
     "commonSubnetName": "common",
-    "commonSubnetRef": "[concat(variables('commonVNetID'),'/subnets/',variables('commonSubnetName'))]",
-    "commonVNetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('commonVirtualNetworkName'))]",
+    "commonSubnetRef": "[concat(variables('commonVirtualNetworkId'),'/subnets/',variables('commonSubnetName'))]",
+    "commonVirtualNetworkId": "[resourceId('Microsoft.Network/virtualNetworks', variables('commonVirtualNetworkName'))]",
+    "commonVirtualNetworkName": "[concat(parameters('spFarmName'), '-vnet')]",
     "dbAdminContentName": "SP_AdminContent",
     "dbConfigName": "SP_Config",
     "dbContentName": "WSS_Content_80",
@@ -228,6 +208,23 @@
       }
     },
     {
+      "name": "CreatingAvailabilitySet-AD",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('urlCreatingAvailabilitySet')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "availabilitySetName": {
+            "value": "[variables('adAvailabilitySetName')]"
+          }
+        }
+      }
+    },
+    {
       "name": "CreatingPublicIP-AD",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
@@ -239,7 +236,7 @@
         },
         "parameters": {
           "dnsPrefix": {
-            "value": "[parameters('adDNSPrefix')]"
+            "value": "[concat(parameters('commonDNSPrefix'), '-ad')]"
           },
           "publicIPAddressName": {
             "value": "[variables('adPublicIPAddressName')]"
@@ -286,23 +283,6 @@
       }
     },
     {
-      "name": "CreatingAvailabilitySet-AD",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('urlCreatingAvailabilitySet')]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "availabilitySetName": {
-            "value": "[variables('adAvailabilitySetName')]"
-          }
-        }
-      }
-    },
-    {
       "name": "CreatingVirtualNetwork-Common",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
@@ -317,17 +297,17 @@
         },
         "parameters": {
           "virtualNetworkName": {
-            "value": "[parameters('commonVirtualNetworkName')]"
+            "value": "[variables('commonVirtualNetworkName')]"
           },
           "virtualNetworkAddressRange": {
-            "value": "[parameters('commonVirtualNetworkAddressRange')]"
+            "value": "10.0.0.0/16"
           },
           "subnets": {
             "value": [
               {
                 "name": "[variables('commonSubnetName')]",
                 "properties": {
-                  "addressPrefix": "[parameters('commonSubnet')]",
+                  "addressPrefix": "10.0.0.0/24",
                   "networkSecurityGroup": {
                     "id": "[variables('commonNetworkSecurityGroupId')]"
                   }
@@ -357,7 +337,7 @@
             "value": "[variables('adNicName')]"
           },
           "nicIPAddress": {
-            "value": "[parameters('adNicIPAddress')]"
+            "value": "10.0.0.4"
           },
           "subnetRef": {
             "value": "[variables('commonSubnetRef')]"
@@ -366,7 +346,7 @@
       }
     },
     {
-      "name": "UpdatingNICPublicIP-AD",
+      "name": "UpdatingNetworkInterfacePublicIP-AD",
       "condition": "[parameters('adUsePublicIP')]",
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2015-01-01",
@@ -385,98 +365,13 @@
             "value": "[variables('adNicName')]"
           },
           "nicIPAddress": {
-            "value": "[parameters('adNicIPAddress')]"
+            "value": "10.0.0.4"
           },
           "subnetRef": {
             "value": "[variables('commonSubnetRef')]"
           },
           "publicIPId": {
             "value": "[variables('adPublicIpResourceId')]"
-          }
-        }
-      }
-    },
-    {
-      "name": "CreatingSection-2013",
-      "comments": "Deploy the SharePoint 2013 farm with SQL Server",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
-      "dependsOn": [
-        "Microsoft.Resources/deployments/CreatingStorageAccount-Common",
-        "Microsoft.Resources/deployments/CreatingVirtualNetwork-Common"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[variables('urlCreatingSection')]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "spVersion": {
-            "value": "2013"
-          },
-          "sqlVersion": {
-            "value": "SQL2014SP2-WS2012R2"
-          },
-          "subnetRange": {
-            "value": "[concat('10.0.1.0/24')]"
-          },
-          "adminUserName": {
-            "value": "[parameters('userAdminUsername')]"
-          },
-          "adminPassword": {
-            "value": "[parameters('userAdminPassword')]"
-          },
-          "sqlVMSize": {
-            "value": "[parameters('sqlVMSize')]"
-          },
-          "spVMSize": {
-            "value": "[parameters('spVMSize')]"
-          },
-          "spDNSPrefix": {
-            "value": "[parameters('spDNSPrefix')]"
-          },
-          "domainName": {
-            "value": "[parameters('domainName')]"
-          },
-          "sqlServerServiceAccountUserName": {
-            "value": "[parameters('userSQLServiceUserName')]"
-          },
-          "sqlServerServiceAccountPassword": {
-            "value": "[parameters('userSQLServicePassword')]"
-          },
-          "sharePointSetupUserAccountUserName": {
-            "value": "[parameters('userSPSetupName')]"
-          },
-          "sharePointSetupUserAccountPassword": {
-            "value": "[parameters('userSPSetupPassword')]"
-          },
-          "sharePointFarmAccountUserName": {
-            "value": "[parameters('userSPFarmUserName')]"
-          },
-          "sharePointFarmAccountPassword": {
-            "value": "[parameters('userSPFarmPassword')]"
-          },
-          "sharePointFarmPassphrasePassword": {
-            "value": "[parameters('spFarmPassphrase')]"
-          },
-          "defaultSiteName": {
-            "value": "[parameters('spDefaultSiteName')]"
-          },
-          "defaultSiteTemplateName": {
-            "value": "[parameters('spDefaultSiteTemplateName')]"
-          },
-          "defaultSiteConfigDatabaseName": {
-            "value": "[variables('dbContentName')]"
-          },
-          "adminContentDatabaseName": {
-            "value": "[variables('dbAdminContentName')]"
-          },
-          "configDatabaseName": {
-            "value": "[variables('dbConfigName')]"
-          },
-          "storageAccountName": {
-            "value": "[variables('commonStorageAccountName')]"
           }
         }
       }
@@ -526,6 +421,116 @@
           },
           "domainName": {
             "value": "[parameters('domainName')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "CreatingSection-2013",
+      "comments": "Deploy the SharePoint 2013 farm with SQL Server",
+      "condition": "[parameters('create2013Farm')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "Microsoft.Resources/deployments/CreatingStorageAccount-Common",
+        "Microsoft.Resources/deployments/CreatingVirtualNetwork-Common"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('urlCreatingSection')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "dbAdminContentName": {
+            "value": "[variables('dbAdminContentName')]"
+          },
+          "dbConfigName": {
+            "value": "[variables('dbConfigName')]"
+          },
+          "dbDefaultSiteConfigName": {
+            "value": "[variables('dbContentName')]"
+          },
+          "domainName": {
+            "value": "[parameters('domainName')]"
+          },
+          "spDefaultSiteName": {
+            "value": "[parameters('spDefaultSiteName')]"
+          },
+          "spDefaultSiteTemplateName": {
+            "value": "[parameters('spDefaultSiteTemplateName')]"
+          },
+          "spDNSPrefix": {
+            "value": "[concat(parameters('commonDNSPrefix'), '-sp13')]"
+          },
+          "spFarmNamePrefix": {
+            "value": "[parameters('spFarmName')]"
+          },
+          "spFarmPassphrase": {
+            "value": "[parameters('spFarmPassphrase')]"
+          },
+          "spNicIpAddress": {
+            "value": "10.0.1.4"
+          },
+          "spVersion": {
+            "value": "2013"
+          },
+          "spVMSize": {
+            "value": "[parameters('spVMSize')]"
+          },
+          "sqlDNSPrefix": {
+            "value": "[concat(parameters('commonDNSPrefix'), '-sql13')]"
+          },
+          "sqlNicIpAddress": {
+            "value": "10.0.1.5"
+          },
+          "sqlVersion": {
+            "value": "SQL2014SP2-WS2012R2"
+          },
+          "sqlVMSize": {
+            "value": "[parameters('sqlVMSize')]"
+          },
+          "storageAccountName": {
+            "value": "[variables('commonStorageAccountName')]"
+          },
+          "subnetAddressRange": {
+            "value": "10.0.1.0/24"
+          },
+          "urlCreatingAvailabilitySet": {
+            "value": "[variables('urlCreatingAvailabilitySet')]"
+          },
+          "urlCreatingNetworkInterface": {
+            "value": "[variables('urlCreatingNIC')]"
+          },
+          "urlCreatingNetworkSecurityGroup": {
+            "value": "[variables('urlCreatingNetworkSecurityGroup')]"
+          },
+          "urlCreatingPublicIP": {
+            "value": "[variables('urlCreatingPublicIP')]"
+          },
+          "userAdminPassword": {
+            "value": "[parameters('userAdminPassword')]"
+          },
+          "userAdminUsername": {
+            "value": "[parameters('userAdminUsername')]"
+          },
+          "userSPFarmPassword": {
+            "value": "[parameters('userSPFarmPassword')]"
+          },
+          "userSPFarmUsername": {
+            "value": "[parameters('userSPFarmUsername')]"
+          },
+          "userSPSetupPassword": {
+            "value": "[parameters('userSPSetupPassword')]"
+          },
+          "userSQLServicePassword": {
+            "value": "[parameters('userSQLServicePassword')]"
+          },
+          "userSQLServiceUsername": {
+            "value": "[parameters('userSQLServiceUsername')]"
+          },
+          "vNetName": {
+            "value": "[variables('commonVirtualNetworkName')]"
           }
         }
       }

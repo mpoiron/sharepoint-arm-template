@@ -1,13 +1,54 @@
 {
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
+  "outputs": {},
   "parameters": {
+    "dbAdminContentName": {
+      "type": "string"
+    },
+    "dbConfigName": {
+      "type": "string"
+    },
+    "dbDefaultSiteConfigName": {
+      "type": "string"
+    },
+    "domainName": {
+      "type": "string"
+    },
+    "spDefaultSiteName": {
+      "type": "string"
+    },
+    "spDefaultSiteTemplateName": {
+      "type": "string",
+      "defaultValue": "STS#0"
+    },
+    "spDNSPrefix": {
+      "type": "string"
+    },
+    "spFarmNamePrefix": {
+      "type": "string"
+    },
+    "spFarmPassphrase": {
+      "type": "securestring"
+    },
+    "spNicIpAddress": {
+      "type": "string"
+    },
     "spVersion": {
       "type": "string",
       "allowedValues": [
         "2013",
         "2016"
       ]
+    },
+    "spVMSize": {
+      "type": "string"
+    },
+    "sqlDNSPrefix": {
+      "type": "string"
+    },
+    "sqlNicIpAddress": {
+      "type": "string"
     },
     "sqlVersion": {
       "type": "string",
@@ -16,69 +57,288 @@
         "SQL2016SP1-WS2016"
       ]
     },
-    "subnetRange": {
-      "type": "string"
-    },
-    "adminUserName": {
-      "type": "string"
-    },
-    "adminPassword": {
-      "type": "securestring"
-    },
     "sqlVMSize": {
-      "type": "string"
-    },
-    "spVMSize": {
-      "type": "string"
-    },
-    "spDNSPrefix": {
-      "type": "string"
-    },
-    "domainName": {
-      "type": "string"
-    },
-    "sqlServerServiceAccountUserName": {
-      "type": "string",
-      "defaultValue": "sqlservice"
-    },
-    "sqlServerServiceAccountPassword": {
-      "type": "securestring"
-    },
-    "sharePointSetupUserAccountUserName": {
-      "type": "string",
-      "defaultValue": "sp_setup"
-    },
-    "sharePointSetupUserAccountPassword": {
-      "type": "securestring"
-    },
-    "sharePointFarmAccountUserName": {
-      "type": "string",
-      "defaultValue": "sp_farm"
-    },
-    "sharePointFarmAccountPassword": {
-      "type": "securestring"
-    },
-    "sharePointFarmPassphrasePassword": {
-      "type": "securestring"
-    },
-    "defaultSiteName": {
-      "type": "string"
-    },
-    "defaultSiteTemplateName": {
-      "type": "string",
-      "defaultValue": "STS#0"
-    },
-    "defaultSiteConfigDatabaseName": {
-      "type": "string"
-    },
-    "adminContentDatabaseName": {
       "type": "string"
     },
     "storageAccountName": {
       "type": "string"
+    },
+    "subnetAddressRange": {
+      "type": "string"
+    },
+    "urlCreatingAvailabilitySet": {
+      "type": "string"
+    },
+    "urlCreatingNetworkInterface": {
+      "type": "string"
+    },
+    "urlCreatingNetworkSecurityGroup": {
+      "type": "string"
+    },
+    "urlCreatingPublicIP": {
+      "type": "string"
+    },
+    "userAdminPassword": {
+      "type": "securestring"
+    },
+    "userAdminUsername": {
+      "type": "string"
+    },
+    "userSPFarmPassword": {
+      "type": "securestring"
+    },
+    "userSPFarmUsername": {
+      "type": "string",
+      "defaultValue": "sp_farm"
+    },
+    "userSPSetupPassword": {
+      "type": "securestring"
+    },
+    "userSPSetupUsername": {
+      "type": "string",
+      "defaultValue": "sp_setup"
+    },
+    "userSQLServicePassword": {
+      "type": "securestring"
+    },
+    "userSQLServiceUsername": {
+      "type": "string",
+      "defaultValue": "sqlservice"
+    },
+    "vNetName": {
+      "type": "string"
     }
   },
+  "variables": {
+    "_versionShortName": "[substring(parameters('spVersion'), 2, 2)]",
+    "networkSecurityGroupName": "[concat(variables('spFarmName'), '-nsg')]",
+    "networkSecurityGroupId": "[toLower(resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName')))]",    
+    "spAvailabilitySetName": "[concat(variables('spFarmName'),'-sp-as')]",
+    "spFarmName": "[concat(parameters('spFarmNamePrefix'), variables('_versionShortName'))]",
+    "spVMName": "[concat(variables('spFarmName'), '-sp-vm1')]",
+    "spNicName": "[concat(variables('spVmName'), '-nic')]",
+    "spPublicIPAddressName": "[concat(variables('spVMName'), '-pip')]",
+    "spPublicIpResourceId": "[resourceId('Microsoft.Network/publicIPAddresses', variables('spPublicIPAddressName'))]",
+    "sqlAvailabilitySetName": "[concat(variables('spFarmName'),'-sql-as')]",    
+    "sqlVMName": "[concat(variables('spFarmName'), '-sql-vm1')]",
+    "sqlNicName": "[concat(variables('sqlVmName'), '-nic')]",
+    "sqlPublicIPAddressName": "[concat(variables('sqlVMName'), '-pip')]",
+    "sqlPublicIpResourceId": "[resourceId('Microsoft.Network/publicIPAddresses', variables('sqlPublicIPAddressName'))]",
+    "subnetRef": "[concat(variables('vNetID'),'/subnets/', parameters('spVersion'))]",
+    "vNetID": "[resourceId('Microsoft.Network/virtualNetworks', parameters('vNetName'))]"
+  },
   "resources": [
-  ],
-  "outputs": {}
+    {
+      "name": "[concat('CreatingPublicIP-SP', variables('_versionShortName'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[parameters('urlCreatingPublicIP')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "dnsPrefix": {
+            "value": "[parameters('spDNSPrefix')]"
+          },
+          "publicIpAddressName": {
+            "value": "[variables('spPublicIPAddressName')]"
+          },
+          "publicIPAddressType": {
+            "value": "Dynamic"
+          }
+        }
+      }
+    },
+    {
+      "name": "[concat('CreatingPublicIP-SQL', variables('_versionShortName'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[parameters('urlCreatingPublicIP')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "dnsPrefix": {
+            "value": "[parameters('sqlDNSPrefix')]"
+          },
+          "publicIpAddressName": {
+            "value": "[variables('sqlPublicIPAddressName')]"
+          },
+          "publicIPAddressType": {
+            "value": "Dynamic"
+          }
+        }
+      }
+    },
+    {
+      "name": "[concat('CreatingNetworkSecurityGroup-', variables('_versionShortName'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[parameters('urlCreatingNetworkSecurityGroup')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "nsgName": {
+            "value": "[variables('networkSecurityGroupName')]"
+          },
+          "securityRules": {
+            "value": [
+              {
+                "name": "allow-rdp",
+                "properties": {
+                  "description": "Allow inbound RDP",
+                  "protocol": "Tcp",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "3389",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "*",
+                  "access": "Allow",
+                  "priority": 101,
+                  "direction": "Inbound"
+                }
+              },
+              {
+                "name": "allow-centraladmin",
+                "properties": {
+                  "description": "Allow inbound traffic to SharePoint Central Admin",
+                  "protocol": "Tcp",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "8000",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "[parameters('spNicIPAddress')]",
+                  "access": "Allow",
+                  "priority": 102,
+                  "direction": "Inbound"
+                }
+              },
+              {
+                "name": "allow-webapps",
+                "properties": {
+                  "description": "Allow inbound traffic to web apps",
+                  "protocol": "Tcp",
+                  "sourcePortRange": "*",
+                  "destinationPortRange": "80-90",
+                  "sourceAddressPrefix": "*",
+                  "destinationAddressPrefix": "[parameters('spNicIPAddress')]",
+                  "access": "Allow",
+                  "priority": 103,
+                  "direction": "Inbound"
+                }
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "name": "[concat(parameters('vNetName'), '/', parameters('spVersion'))]",
+      "type": "Microsoft.Network/virtualNetworks/subnets",
+      "apiVersion": "2017-06-01",
+      "location": "[resourceGroup().location]",
+      "dependsOn": [
+        "[concat('CreatingNetworkSecurityGroup-', variables('_versionShortName'))]"
+      ],
+      "properties": {
+        "addressPrefix": "[parameters('subnetAddressRange')]",
+        "networkSecurityGroup": {
+          "id": "[variables('networkSecurityGroupId')]"
+        }
+      }
+    },
+    {
+      "name": "[concat('CreatingNetworkInterface-SP', variables('_versionShortName'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/CreatingPublicIP-SP', variables('_versionShortName'))]",
+        "[variables('subnetRef')]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[parameters('urlCreatingNetworkInterface')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "nicName": {
+            "value": "[variables('spNicName')]"
+          },
+          "nicIPAddress": {
+            "value": "[parameters('spNicIPAddress')]"
+          },
+          "subnetRef": {
+            "value": "[variables('subnetRef')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "[concat('CreatingNetworkInterface-SQL', variables('_versionShortName'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "[concat('Microsoft.Resources/deployments/CreatingPublicIP-SQL', variables('_versionShortName'))]",
+        "[variables('subnetRef')]"        
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[parameters('urlCreatingNetworkInterface')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "nicName": {
+            "value": "[variables('sqlNicName')]"
+          },
+          "nicIPAddress": {
+            "value": "[parameters('sqlNicIPAddress')]"
+          },
+          "subnetRef": {
+            "value": "[variables('subnetRef')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "[concat('CreatingAvailabilitySet-SP', variables('_versionShortName'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[parameters('urlCreatingAvailabilitySet')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "availabilitySetName": {
+            "value": "[variables('spAvailabilitySetName')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "[concat('CreatingAvailabilitySet-SQL', variables('_versionShortName'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[parameters('urlCreatingAvailabilitySet')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "availabilitySetName": {
+            "value": "[variables('sqlAvailabilitySetName')]"
+          }
+        }
+      }
+    }
+  ]
 }

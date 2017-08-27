@@ -2,31 +2,31 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "adVMName": {
+    "vmName": {
       "type": "string"
     },
-    "adVMSize": {
+    "vmSize": {
       "type": "string"
     },
-    "adAvailabilitySetName": {
+    "availabilitySetName": {
       "type": "string"
     },
-    "adminUsername": {
+    "userAdminUsername": {
       "type": "string"
     },
-    "adminPassword": {
+    "userAdminPassword": {
       "type": "securestring"
     },
     "storageAccountName": {
       "type": "string"
     },
-    "adNicName": {
+    "nicName": {
       "type": "string"
     },
-    "adModulesURL": {
+    "dscModulesUrl": {
       "type": "string"
     },
-    "adConfigurationFunction": {
+    "dscConfigurationFunction": {
       "type": "string"
     },
     "domainName": {
@@ -35,21 +35,21 @@
   },
   "resources": [
     {
-      "apiVersion": "2015-06-15",
+      "apiVersion": "2017-03-30",
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[parameters('adVMName')]",
+      "name": "[parameters('vmName')]",
       "location": "[resourcegroup().location]",
       "properties": {
         "hardwareProfile": {
-          "vmSize": "[parameters('adVMSize')]"
+          "vmSize": "[parameters('vmSize')]"
         },
         "availabilitySet": {
-          "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('adAvailabilitySetName'))]"
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]"
         },
         "osProfile": {
-          "computerName": "[parameters('adVMName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[parameters('userAdminUsername')]",
+          "adminPassword": "[parameters('userAdminPassword')]"
         },
         "storageProfile": {
           "imageReference": {
@@ -59,19 +59,19 @@
             "version": "latest"
           },
           "osDisk": {
-            "name": "osdisk",
-            "vhd": {
-              "uri": "[concat('https://',parameters('storageAccountName'), '.blob.core.windows.net/vhds/', parameters('adVMName'), '-OsDisk.vhd')]"
+            "name": "[concat(parameters('vmName'), '-OsDisk')]",
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
           },
           "dataDisks": [
             {
-              "vhd": {
-                "uri": "[concat('https://',parameters('storageAccountName'), '.blob.core.windows.net/vhds/', parameters('adVMName'),'-DataDisk1.vhd')]"
+              "name": "[concat(parameters('vmName'), '-DataDisk1')]",
+              "managedDisk": {
+                "storageAccountType": "Standard_LRS"
               },
-              "name": "[concat(parameters('adVMName'),'-DataDisk1')]",
               "caching": "None",
               "createOption": "Empty",
               "diskSizeGB": "20",
@@ -82,7 +82,7 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('adNicName'))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('nicName'))]"
             }
           ]
         },
@@ -96,11 +96,11 @@
       "resources": [
         {
           "type": "Microsoft.Compute/virtualMachines/extensions",
-          "name": "[concat(parameters('adVMName'),'/InstallDomainController')]",
+          "name": "[concat(parameters('vmName'),'/InstallDomainController')]",
           "apiVersion": "2015-06-15",
           "location": "[resourcegroup().location]",
           "dependsOn": [
-            "[resourceId('Microsoft.Compute/virtualMachines', parameters('adVMName'))]"
+            "[resourceId('Microsoft.Compute/virtualMachines', parameters('vmName'))]"
           ],
           "properties": {
             "publisher": "Microsoft.Powershell",
@@ -108,20 +108,20 @@
             "typeHandlerVersion": "2.20",
             "autoUpgradeMinorVersion": true,
             "settings": {
-              "ModulesUrl": "[parameters('adModulesURL')]",
+              "ModulesUrl": "[parameters('dscModulesUrl')]",
               "wmfVersion": "5.1",
-              "ConfigurationFunction": "[parameters('adConfigurationFunction')]",
+              "ConfigurationFunction": "[parameters('dscConfigurationFunction')]",
               "Properties": {
                 "DomainName": "[parameters('domainName')]",
                 "AdminCreds": {
-                  "UserName": "[parameters('adminUsername')]",
+                  "UserName": "[parameters('userAdminUsername')]",
                   "Password": "PrivateSettingsRef:AdminPassword"
                 }
               }
             },
             "protectedSettings": {
               "Items": {
-                "AdminPassword": "[parameters('adminPassword')]"
+                "AdminPassword": "[parameters('userAdminPassword')]"
               }
             }
           }

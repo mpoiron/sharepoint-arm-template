@@ -58,25 +58,12 @@
       },
       "defaultValue": "contoso.local"
     },
-    "spDefaultSiteName": {
-      "type": "string",
-      "metadata": {
-        "description": "The Sharepoint Default Site Name"
-      },
-      "defaultValue": "Default"
-    },
     "spDefaultSiteTemplateName": {
       "type": "string",
       "metadata": {
         "description": "The Sharepoint Content Site Template Name"
       },
       "defaultValue": "STS#0"
-    },
-    "spDNSPrefix": {
-      "type": "string",
-      "metadata": {
-        "description": "The DNS Prefix for the SharePoint Public IP Address"
-      }
     },
     "spFarmName": {
       "type": "string",
@@ -91,12 +78,20 @@
         "description": "The Sharepoint Farm Passphrase"
       }
     },
+    "spUsePublicIP": {
+      "type": "bool",
+      "defaultValue": false
+    },
     "spVMSize": {
       "type": "string",
       "metadata": {
         "description": "The size of the VM Created"
       },
       "defaultValue": "Standard_DS3"
+    },
+    "sqlUsePublicIP": {
+      "type": "bool",
+      "defaultValue": false
     },
     "sqlVMSize": {
       "type": "string",
@@ -105,24 +100,17 @@
       },
       "defaultValue": "Standard_DS2"
     },
-    "userAdminUsername": {
-      "type": "string",
-      "metadata": {
-        "description": "The name of the Administrator of the new VM and Domain"
-      }
-    },
     "userAdminPassword": {
       "type": "securestring",
       "metadata": {
         "description": "The password forthe Administrator account of the new VM and Domain"
       }
     },
-    "userSPFarmUsername": {
+    "userAdminUsername": {
       "type": "string",
       "metadata": {
-        "description": "The Sharepoint Farm account name"
-      },
-      "defaultValue": "sp_farm"
+        "description": "The name of the Administrator of the new VM and Domain"
+      }
     },
     "userSPFarmPassword": {
       "type": "securestring",
@@ -130,12 +118,11 @@
         "description": "The Sharepoint Farm account password"
       }
     },
-    "userSPSetupUsername": {
+    "userSPFarmUsername": {
       "type": "string",
       "metadata": {
-        "description": "The Sharepoint Setup account name"
-      },
-      "defaultValue": "sp_setup"
+        "description": "The Sharepoint Farm account name"
+      }
     },
     "userSPSetupPassword": {
       "type": "securestring",
@@ -143,29 +130,33 @@
         "description": "The Sharepoint Setup account password"
       }
     },
-    "userSQLServiceUsername": {
+    "userSPSetupUsername": {
       "type": "string",
       "metadata": {
-        "description": "The SQL Server Service account name"
-      },
-      "defaultValue": "sqlservice"
+        "description": "The Sharepoint Setup account name"
+      }
     },
     "userSQLServicePassword": {
       "type": "securestring",
       "metadata": {
         "description": "The SQL Server Service account password"
       }
+    },
+    "userSQLServiceUsername": {
+      "type": "string",
+      "metadata": {
+        "description": "The SQL Server Service account name"
+      }
     }
   },
   "variables": {
     "_assetLocation": "[concat(parameters('_baseUrl'),'/dsc')]",
-    "adAvailabilitySetName": "[concat(parameters('spFarmName'),'-ad-as')]",
-    "adConfigurationFunction": "CreateADPDC.ps1\\CreateADPDC",
-    "adModulesURL": "[concat(variables('_assetLocation'),'/CreateADPDC.ps1.zip')]",
-    "adNicName": "[concat(parameters('spFarmName'), '-ad-vm1-nic')]",
-    "adPublicIPAddressName": "[concat(parameters('spFarmName'), '-ad-vm1-pip')]",
+    "adAvailabilitySetName": "[concat(parameters('spFarmName'),'-ad1-as')]",
+    "adNicAddress": "10.0.0.4",
+    "adNicName": "[concat(parameters('spFarmName'), '-ad1-nic')]",
+    "adPublicIPAddressName": "[concat(parameters('spFarmName'), '-ad1-pip')]",
     "adPublicIpResourceId": "[resourceId('Microsoft.Network/publicIPAddresses', variables('adPublicIPAddressName'))]",
-    "adVMName": "[concat(parameters('spFarmName'),'-ad-vm1')]",
+    "adVMName": "[concat(parameters('spFarmName'),'-ad1')]",
     "commonNetworkSecurityGroupId": "[toLower(resourceId('Microsoft.Network/networkSecurityGroups', variables('commonNetworkSecurityGroupName')))]",
     "commonNetworkSecurityGroupName": "[concat(parameters('spFarmName'), '-common-nsg')]",
     "commonStorageAccountName": "[concat(parameters('commonStorageAccountNamePrefix'), '01')]",
@@ -176,6 +167,17 @@
     "dbAdminContentName": "SP_AdminContent",
     "dbConfigName": "SP_Config",
     "dbContentName": "WSS_Content_80",
+    "dscADConfigurationFunction": "CreateADPDC.ps1\\CreateADPDC",
+    "dscADModulesUrl": "[concat(variables('_assetLocation'),'/ProvisionDomainController.ps1.zip')]",
+    "dscSPPrepareModulesUrl": "[concat(variables('_assetLocation'), '/PrepareSharePointServer.ps1.zip')]",
+    "dscSPPrepareFunction": "PrepareSharePointServer.ps1\\PrepareSharePointServer",
+    "dscSQLPrepareModulesUrl": "[concat(variables('_assetLocation'), '/PrepareSqlServer.ps1.zip')]",
+    "dscSQLPrepareFunction": "PrepareSqlServer.ps1\\PrepareSqlServer",
+    "dscSP13ConfigureModulesUrl": "[concat(variables('_assetLocation'), '/ConfigureSharePointServer2013.ps1.zip')]",
+    "dscSP16ConfigureModulesUrl": "[concat(variables('_assetLocation'), '/ConfigureSharePointServer2016.ps1.zip')]",
+    "dscSPConfigureFunction": "ConfigureSharePointServer.ps1\\ConfigureSharePointServer",
+    "dscSQLConfigureModulesUrl": "[concat(variables('_assetLocation'), '/ConfigureSqlServer.ps1.zip')]",
+    "dscSQLConfigureFunction": "ConfigureSqlServer.ps1\\ConfigureSqlServer",
     "urlCreatingAvailabilitySet": "[concat(parameters('_baseUrl'),'/creatingAvailabilitySet.json')]",
     "urlCreatingNetworkSecurityGroup": "[concat(parameters('_baseUrl'),'/creatingNetworkSecurityGroup.json')]",
     "urlCreatingNIC": "[concat(parameters('_baseUrl'),'/creatingNIC.json')]",
@@ -184,6 +186,10 @@
     "urlCreatingStorageAccount": "[concat(parameters('_baseUrl'),'/creatingStorageAccount.json')]",
     "urlCreatingVNet": "[concat(parameters('_baseUrl'),'/creatingVNet.json')]",
     "urlProvisioningDomainController": "[concat(parameters('_baseUrl'),'/provisioningDomainController.json')]",
+    "urlProvisioningSPServer": "[concat(parameters('_baseUrl'),'/provisioningSharePoint.json')]",
+    "urlProvisioningSQLServer": "[concat(parameters('_baseUrl'),'/provisioningSQL.json')]",
+    "urlConfiguringSPServer": "[concat(parameters('_baseUrl'),'/configuringSharePoint.json')]",
+    "urlConfiguringSQLServer": "[concat(parameters('_baseUrl'),'/configuringSQL.json')]",
     "urlUpdatingNICPublicIP": "[concat(parameters('_baseUrl'),'/updatingNICPublicIP.json')]"
   },
   "resources": [
@@ -312,6 +318,18 @@
                     "id": "[variables('commonNetworkSecurityGroupId')]"
                   }
                 }
+              },
+              {
+                "name": "2013",
+                "properties": {
+                  "addressPrefix": "10.0.1.0/24"
+                }
+              },
+              {
+                "name": "2016",
+                "properties": {
+                  "addressPrefix": "10.0.2.0/24"
+                }
               }
             ]
           }
@@ -365,7 +383,7 @@
             "value": "[variables('adNicName')]"
           },
           "nicIPAddress": {
-            "value": "10.0.0.4"
+            "value": "[variables('adNicAddress')]"
           },
           "subnetRef": {
             "value": "[variables('commonSubnetRef')]"
@@ -392,32 +410,32 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
-          "adVMName": {
+          "vmName": {
             "value": "[variables('adVMName')]"
           },
-          "adVMSize": {
+          "vmSize": {
             "value": "[parameters('adVMSize')]"
           },
-          "adAvailabilitySetName": {
+          "availabilitySetName": {
             "value": "[variables('adAvailabilitySetName')]"
           },
-          "adminUsername": {
+          "userAdminUsername": {
             "value": "[parameters('userAdminUsername')]"
           },
-          "adminPassword": {
+          "userAdminPassword": {
             "value": "[parameters('userAdminPassword')]"
           },
           "storageAccountName": {
             "value": "[variables('commonStorageAccountName')]"
           },
-          "adNicName": {
+          "nicName": {
             "value": "[variables('adNicName')]"
           },
-          "adModulesURL": {
-            "value": "[variables('adModulesURL')]"
+          "dscModulesUrl": {
+            "value": "[variables('dscADModulesUrl')]"
           },
-          "adConfigurationFunction": {
-            "value": "[variables('adConfigurationFunction')]"
+          "dscConfigurationFunction": {
+            "value": "[variables('dscADConfigurationFunction')]"
           },
           "domainName": {
             "value": "[parameters('domainName')]"
@@ -442,6 +460,9 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
+          "adNicAddress": {
+            "value": "[variables('adNicAddress')]"
+          },
           "dbAdminContentName": {
             "value": "[variables('dbAdminContentName')]"
           },
@@ -454,14 +475,11 @@
           "domainName": {
             "value": "[parameters('domainName')]"
           },
-          "spDefaultSiteName": {
-            "value": "[parameters('spDefaultSiteName')]"
-          },
           "spDefaultSiteTemplateName": {
             "value": "[parameters('spDefaultSiteTemplateName')]"
           },
           "spDNSPrefix": {
-            "value": "[concat(parameters('commonDNSPrefix'), '-sp13')]"
+            "value": "[concat(parameters('commonDNSPrefix'), '13-sp')]"
           },
           "spFarmNamePrefix": {
             "value": "[parameters('spFarmName')]"
@@ -472,6 +490,9 @@
           "spNicIpAddress": {
             "value": "10.0.1.4"
           },
+          "spUsePublicIP": {
+            "value": "[parameters('spUsePublicIP')]"
+          },
           "spVersion": {
             "value": "2013"
           },
@@ -479,10 +500,13 @@
             "value": "[parameters('spVMSize')]"
           },
           "sqlDNSPrefix": {
-            "value": "[concat(parameters('commonDNSPrefix'), '-sql13')]"
+            "value": "[concat(parameters('commonDNSPrefix'), '13-sql')]"
           },
           "sqlNicIpAddress": {
             "value": "10.0.1.5"
+          },
+          "sqlUsePublicIP": {
+            "value": "[parameters('sqlUsePublicIP')]"
           },
           "sqlVersion": {
             "value": "SQL2014SP2-WS2012R2"
@@ -508,6 +532,21 @@
           "urlCreatingPublicIP": {
             "value": "[variables('urlCreatingPublicIP')]"
           },
+          "urlProvisioningSPServer": {
+            "value": "[variables('urlProvisioningSPServer')]"
+          },
+          "urlProvisioningSQLServer": {
+            "value": "[variables('urlProvisioningSQLServer')]"
+          },
+          "urlConfiguringSPServer": {
+            "value": "[variables('urlConfiguringSPServer')]"
+          },
+          "urlConfiguringSQLServer": {
+            "value": "[variables('urlConfiguringSQLServer')]"
+          },
+          "urlUpdatingNICPublicIP": {
+            "value": "[variables('urlUpdatingNICPublicIP')]"
+          },
           "userAdminPassword": {
             "value": "[parameters('userAdminPassword')]"
           },
@@ -523,6 +562,9 @@
           "userSPSetupPassword": {
             "value": "[parameters('userSPSetupPassword')]"
           },
+          "userSPSetupUsername": {
+            "value": "[parameters('userSPSetupUsername')]"
+          },
           "userSQLServicePassword": {
             "value": "[parameters('userSQLServicePassword')]"
           },
@@ -531,6 +573,188 @@
           },
           "vNetName": {
             "value": "[variables('commonVirtualNetworkName')]"
+          },
+          "dscSPPrepareModulesUrl": {
+            "value": "[variables('dscSPPrepareModulesUrl')]"
+          },
+          "dscSPPrepareFunction": {
+            "value": "[variables('dscSPPrepareFunction')]"
+          },
+          "dscSQLPrepareModulesUrl": {
+            "value": "[variables('dscSQLPrepareModulesUrl')]"
+          },
+          "dscSQLPrepareFunction": {
+            "value": "[variables('dscSQLPrepareFunction')]"
+          },
+          "dscSPConfigureModulesUrl": {
+            "value": "[variables('dscSP13ConfigureModulesUrl')]"
+          },
+          "dscSPConfigureFunction": {
+            "value": "[variables('dscSPConfigureFunction')]"
+          },
+          "dscSQLConfigureModulesUrl": {
+            "value": "[variables('dscSQLConfigureModulesUrl')]"
+          },
+          "dscSQLConfigureFunction": {
+            "value": "[variables('dscSQLConfigureFunction')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "CreatingSection-2016",
+      "comments": "Deploy the SharePoint 2016 farm with SQL Server",
+      "condition": "[parameters('create2016Farm')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "Microsoft.Resources/deployments/CreatingStorageAccount-Common",
+        "Microsoft.Resources/deployments/CreatingVirtualNetwork-Common"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[variables('urlCreatingSection')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "adNicAddress": {
+            "value": "[variables('adNicAddress')]"
+          },
+          "dbAdminContentName": {
+            "value": "[variables('dbAdminContentName')]"
+          },
+          "dbConfigName": {
+            "value": "[variables('dbConfigName')]"
+          },
+          "dbDefaultSiteConfigName": {
+            "value": "[variables('dbContentName')]"
+          },
+          "domainName": {
+            "value": "[parameters('domainName')]"
+          },
+          "spDefaultSiteTemplateName": {
+            "value": "[parameters('spDefaultSiteTemplateName')]"
+          },
+          "spDNSPrefix": {
+            "value": "[concat(parameters('commonDNSPrefix'), '-sp16')]"
+          },
+          "spFarmNamePrefix": {
+            "value": "[parameters('spFarmName')]"
+          },
+          "spFarmPassphrase": {
+            "value": "[parameters('spFarmPassphrase')]"
+          },
+          "spNicIpAddress": {
+            "value": "10.0.2.4"
+          },
+          "spUsePublicIP": {
+            "value": "[parameters('spUsePublicIP')]"
+          },
+          "spVersion": {
+            "value": "2016"
+          },
+          "spVMSize": {
+            "value": "[parameters('spVMSize')]"
+          },
+          "sqlDNSPrefix": {
+            "value": "[concat(parameters('commonDNSPrefix'), '-sql16')]"
+          },
+          "sqlNicIpAddress": {
+            "value": "10.0.2.5"
+          },
+          "sqlUsePublicIP": {
+            "value": "[parameters('sqlUsePublicIP')]"
+          },
+          "sqlVersion": {
+            "value": "SQL2016SP1-WS2016"
+          },
+          "sqlVMSize": {
+            "value": "[parameters('sqlVMSize')]"
+          },
+          "storageAccountName": {
+            "value": "[variables('commonStorageAccountName')]"
+          },
+          "subnetAddressRange": {
+            "value": "10.0.2.0/24"
+          },
+          "urlCreatingAvailabilitySet": {
+            "value": "[variables('urlCreatingAvailabilitySet')]"
+          },
+          "urlCreatingNetworkInterface": {
+            "value": "[variables('urlCreatingNIC')]"
+          },
+          "urlCreatingNetworkSecurityGroup": {
+            "value": "[variables('urlCreatingNetworkSecurityGroup')]"
+          },
+          "urlCreatingPublicIP": {
+            "value": "[variables('urlCreatingPublicIP')]"
+          },
+          "urlProvisioningSPServer": {
+            "value": "[variables('urlProvisioningSPServer')]"
+          },
+          "urlProvisioningSQLServer": {
+            "value": "[variables('urlProvisioningSQLServer')]"
+          },
+          "urlConfiguringSPServer": {
+            "value": "[variables('urlConfiguringSPServer')]"
+          },
+          "urlConfiguringSQLServer": {
+            "value": "[variables('urlConfiguringSQLServer')]"
+          },
+          "urlUpdatingNICPublicIP": {
+            "value": "[variables('urlUpdatingNICPublicIP')]"
+          },
+          "userAdminPassword": {
+            "value": "[parameters('userAdminPassword')]"
+          },
+          "userAdminUsername": {
+            "value": "[parameters('userAdminUsername')]"
+          },
+          "userSPFarmPassword": {
+            "value": "[parameters('userSPFarmPassword')]"
+          },
+          "userSPFarmUsername": {
+            "value": "[parameters('userSPFarmUsername')]"
+          },
+          "userSPSetupPassword": {
+            "value": "[parameters('userSPSetupPassword')]"
+          },
+          "userSPSetupUsername": {
+            "value": "[parameters('userSPSetupUsername')]"
+          },
+          "userSQLServicePassword": {
+            "value": "[parameters('userSQLServicePassword')]"
+          },
+          "userSQLServiceUsername": {
+            "value": "[parameters('userSQLServiceUsername')]"
+          },
+          "vNetName": {
+            "value": "[variables('commonVirtualNetworkName')]"
+          },
+          "dscSPPrepareModulesUrl": {
+            "value": "[variables('dscSPPrepareModulesUrl')]"
+          },
+          "dscSPPrepareFunction": {
+            "value": "[variables('dscSPPrepareFunction')]"
+          },
+          "dscSQLPrepareModulesUrl": {
+            "value": "[variables('dscSQLPrepareModulesUrl')]"
+          },
+          "dscSQLPrepareFunction": {
+            "value": "[variables('dscSQLPrepareFunction')]"
+          },
+          "dscSPConfigureModulesUrl": {
+            "value": "[variables('dscSP16ConfigureModulesUrl')]"
+          },
+          "dscSPConfigureFunction": {
+            "value": "[variables('dscSPConfigureFunction')]"
+          },
+          "dscSQLConfigureModulesUrl": {
+            "value": "[variables('dscSQLConfigureModulesUrl')]"
+          },
+          "dscSQLConfigureFunction": {
+            "value": "[variables('dscSQLConfigureFunction')]"
           }
         }
       }

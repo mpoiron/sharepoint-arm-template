@@ -3,6 +3,9 @@
   "contentVersion": "1.0.0.0",
   "outputs": {},
   "parameters": {
+    "adNicAddress": {
+      "type": "string"
+    },
     "dbAdminContentName": {
       "type": "string"
     },
@@ -13,9 +16,6 @@
       "type": "string"
     },
     "domainName": {
-      "type": "string"
-    },
-    "spDefaultSiteName": {
       "type": "string"
     },
     "spDefaultSiteTemplateName": {
@@ -34,6 +34,9 @@
     "spNicIpAddress": {
       "type": "string"
     },
+    "spUsePublicIP": {
+      "type": "bool"
+    },
     "spVersion": {
       "type": "string",
       "allowedValues": [
@@ -49,6 +52,9 @@
     },
     "sqlNicIpAddress": {
       "type": "string"
+    },
+    "sqlUsePublicIP": {
+      "type": "bool"
     },
     "sqlVersion": {
       "type": "string",
@@ -76,6 +82,21 @@
       "type": "string"
     },
     "urlCreatingPublicIP": {
+      "type": "string"
+    },
+    "urlProvisioningSPServer": {
+      "type": "string"
+    },
+    "urlProvisioningSQLServer": {
+      "type": "string"
+    },
+    "urlConfiguringSPServer": {
+      "type": "string"
+    },
+    "urlConfiguringSQLServer": {
+      "type": "string"
+    },
+    "urlUpdatingNICPublicIP": {
       "type": "string"
     },
     "userAdminPassword": {
@@ -107,20 +128,45 @@
     },
     "vNetName": {
       "type": "string"
+    },
+    "dscSPPrepareModulesUrl": {
+      "type": "string"
+    },
+    "dscSPPrepareFunction": {
+      "type": "string"
+    },
+    "dscSQLPrepareModulesUrl": {
+      "type": "string"
+    },
+    "dscSQLPrepareFunction": {
+      "type": "string"
+    },
+    "dscSPConfigureModulesUrl": {
+      "type": "string"
+    },
+    "dscSPConfigureFunction": {
+      "type": "string"
+    },
+    "dscSQLConfigureModulesUrl": {
+      "type": "string"
+    },
+    "dscSQLConfigureFunction": {
+      "type": "string"
     }
   },
   "variables": {
     "_versionShortName": "[substring(parameters('spVersion'), 2, 2)]",
     "networkSecurityGroupName": "[concat(variables('spFarmName'), '-nsg')]",
-    "networkSecurityGroupId": "[toLower(resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName')))]",    
-    "spAvailabilitySetName": "[concat(variables('spFarmName'),'-sp-as')]",
+    "networkSecurityGroupId": "[toLower(resourceId('Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName')))]",
+    "spAvailabilitySetName": "[concat(variables('spFarmName'),'-sp1-as')]",
     "spFarmName": "[concat(parameters('spFarmNamePrefix'), variables('_versionShortName'))]",
-    "spVMName": "[concat(variables('spFarmName'), '-sp-vm1')]",
+    "spVMName": "[concat(variables('spFarmName'), '-sp1')]",
+    "spFqdn":"[concat(parameters('spDNSPrefix'), '.', resourceGroup().location, '.cloudapp.azure.com')]",
     "spNicName": "[concat(variables('spVmName'), '-nic')]",
-    "spPublicIPAddressName": "[concat(variables('spVMName'), '-pip')]",
-    "spPublicIpResourceId": "[resourceId('Microsoft.Network/publicIPAddresses', variables('spPublicIPAddressName'))]",
-    "sqlAvailabilitySetName": "[concat(variables('spFarmName'),'-sql-as')]",    
-    "sqlVMName": "[concat(variables('spFarmName'), '-sql-vm1')]",
+    "spPublicIpAddressName": "[concat(variables('spVMName'), '-pip')]",
+    "spPublicIpResourceId": "[resourceId('Microsoft.Network/publicIPAddresses', variables('spPublicIpAddressName'))]",
+    "sqlAvailabilitySetName": "[concat(variables('spFarmName'),'-sql1-as')]",
+    "sqlVMName": "[concat(variables('spFarmName'), '-sql1')]",
     "sqlNicName": "[concat(variables('sqlVmName'), '-nic')]",
     "sqlPublicIPAddressName": "[concat(variables('sqlVMName'), '-pip')]",
     "sqlPublicIpResourceId": "[resourceId('Microsoft.Network/publicIPAddresses', variables('sqlPublicIPAddressName'))]",
@@ -143,7 +189,7 @@
             "value": "[parameters('spDNSPrefix')]"
           },
           "publicIpAddressName": {
-            "value": "[variables('spPublicIPAddressName')]"
+            "value": "[variables('spPublicIpAddressName')]"
           },
           "publicIPAddressType": {
             "value": "Dynamic"
@@ -285,7 +331,7 @@
       "apiVersion": "2015-01-01",
       "dependsOn": [
         "[concat('Microsoft.Resources/deployments/CreatingPublicIP-SQL', variables('_versionShortName'))]",
-        "[variables('subnetRef')]"        
+        "[variables('subnetRef')]"
       ],
       "properties": {
         "mode": "Incremental",
@@ -302,6 +348,68 @@
           },
           "subnetRef": {
             "value": "[variables('subnetRef')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "[concat('UpdatingNetworkInterfacePublicIP-SP', variables('_versionShortName'))]",
+      "condition": "[parameters('spUsePublicIP')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "[concat('CreatingPublicIP-SP', variables('_versionShortName'))]",
+        "[concat('CreatingNetworkInterface-SP', variables('_versionShortName'))]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[parameters('urlUpdatingNICPublicIP')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "nicName": {
+            "value": "[variables('spNicName')]"
+          },
+          "nicIPAddress": {
+            "value": "[parameters('spNicIPAddress')]"
+          },
+          "subnetRef": {
+            "value": "[variables('subnetRef')]"
+          },
+          "publicIPId": {
+            "value": "[variables('spPublicIpResourceId')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "[concat('UpdatingNetworkInterfacePublicIP-SQL', variables('_versionShortName'))]",
+      "condition": "[parameters('sqlUsePublicIP')]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "[concat('CreatingPublicIP-SQL', variables('_versionShortName'))]",
+        "[concat('CreatingNetworkInterface-SQL', variables('_versionShortName'))]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[parameters('urlUpdatingNICPublicIP')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "nicName": {
+            "value": "[variables('sqlNicName')]"
+          },
+          "nicIPAddress": {
+            "value": "[parameters('sqlNicIPAddress')]"
+          },
+          "subnetRef": {
+            "value": "[variables('subnetRef')]"
+          },
+          "publicIPId": {
+            "value": "[variables('sqlPublicIpResourceId')]"
           }
         }
       }
@@ -336,6 +444,239 @@
         "parameters": {
           "availabilitySetName": {
             "value": "[variables('sqlAvailabilitySetName')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "[concat('ProvisioningSQL', variables('_versionShortName'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "[concat('CreatingNetworkInterface-SQL', variables('_versionShortName'))]",
+        "[concat('CreatingAvailabilitySet-SQL', variables('_versionShortName'))]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[parameters('urlProvisioningSQLServer')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "vmName": {
+            "value": "[variables('sqlVMName')]"
+          },
+          "vmSize": {
+            "value": "[parameters('sqlVMSize')]"
+          },
+          "availabilitySetName": {
+            "value": "[variables('sqlAvailabilitySetName')]"
+          },
+          "userAdminUsername": {
+            "value": "[parameters('userAdminUsername')]"
+          },
+          "userAdminPassword": {
+            "value": "[parameters('userAdminPassword')]"
+          },
+          "storageAccountName": {
+            "value": "[parameters('storageAccountName')]"
+          },
+          "nicName": {
+            "value": "[variables('sqlNicName')]"
+          },
+          "dscModulesUrl": {
+            "value": "[parameters('dscSQLPrepareModulesUrl')]"
+          },
+          "dscFunction": {
+            "value": "[parameters('dscSQLPrepareFunction')]"
+          },
+          "dnsServerAddress": {
+            "value": "[parameters('adNicAddress')]"
+          },
+          "sqlVersion": {
+            "value": "[parameters('sqlVersion')]"
+          },
+          "osDiskStorageType": {
+            "value": "Standard_LRS"
+          },
+          "dataDiskStorageType": {
+            "value": "Premium_LRS"
+          }
+        }
+      }
+    },
+    {
+      "name": "[concat('ProvisioningSP', variables('_versionShortName'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "[concat('CreatingNetworkInterface-SP', variables('_versionShortName'))]",
+        "[concat('CreatingAvailabilitySet-SP', variables('_versionShortName'))]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[parameters('urlProvisioningSPServer')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "vmName": {
+            "value": "[variables('spVMName')]"
+          },
+          "vmSize": {
+            "value": "[parameters('spVMSize')]"
+          },
+          "availabilitySetName": {
+            "value": "[variables('spAvailabilitySetName')]"
+          },
+          "userAdminUsername": {
+            "value": "[parameters('userAdminUsername')]"
+          },
+          "userAdminPassword": {
+            "value": "[parameters('userAdminPassword')]"
+          },
+          "storageAccountName": {
+            "value": "[parameters('storageAccountName')]"
+          },
+          "nicName": {
+            "value": "[variables('spNicName')]"
+          },
+          "dscModulesUrl": {
+            "value": "[parameters('dscSPPrepareModulesUrl')]"
+          },
+          "dscFunction": {
+            "value": "[parameters('dscSPPrepareFunction')]"
+          },
+          "dnsServerAddress": {
+            "value": "[parameters('adNicAddress')]"
+          },
+          "spVersion": {
+            "value": "[parameters('spVersion')]"
+          },
+          "osDiskStorageType": {
+            "value": "Standard_LRS"
+          },
+          "dataDiskStorageType": {
+            "value": "Premium_LRS"
+          }
+        }
+      }
+    },
+    {
+      "name": "[concat('ConfiguringSQL', variables('_versionShortName'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "[concat('ProvisioningSQL', variables('_versionShortName'))]",
+        "[concat('ProvisioningSP', variables('_versionShortName'))]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[parameters('urlConfiguringSQLServer')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "vmName": {
+            "value": "[variables('sqlVMName')]"
+          },
+          "userAdminUsername": {
+            "value": "[parameters('userAdminUsername')]"
+          },
+          "userAdminPassword": {
+            "value": "[parameters('userAdminPassword')]"
+          },
+          "dscModulesUrl": {
+            "value": "[parameters('dscSQLConfigureModulesUrl')]"
+          },
+          "dscFunction": {
+            "value": "[parameters('dscSQLConfigureFunction')]"
+          },
+          "domainName": {
+            "value": "[parameters('domainName')]"
+          },
+          "userSQLServiceUsername": {
+            "value": "[parameters('userSQLServiceUsername')]"
+          },
+          "userSQLServicePassword": {
+            "value": "[parameters('userSQLServicePassword')]"
+          },
+          "userSPSetupUsername": {
+            "value": "[parameters('userSPSetupUsername')]"
+          },
+          "userSPSetupPassword": {
+            "value": "[parameters('userSPSetupPassword')]"
+          }
+        }
+      }
+    },
+    {
+      "name": "[concat('ConfiguringSP', variables('_versionShortName'))]",
+      "type": "Microsoft.Resources/deployments",
+      "apiVersion": "2015-01-01",
+      "dependsOn": [
+        "[concat('ConfiguringSQL', variables('_versionShortName'))]"
+      ],
+      "properties": {
+        "mode": "Incremental",
+        "templateLink": {
+          "uri": "[parameters('urlConfiguringSPServer')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "vmName": {
+            "value": "[variables('spVMName')]"
+          },
+          "dscModulesUrl": {
+            "value": "[parameters('dscSPConfigureModulesUrl')]"
+          },
+          "dscFunction": {
+            "value": "[parameters('dscSPConfigureFunction')]"
+          },
+          "domainName": {
+            "value": "[parameters('domainName')]"
+          },
+          "userAdminUsername": {
+            "value": "[parameters('userAdminUsername')]"
+          },
+          "userAdminPassword": {
+            "value": "[parameters('userAdminPassword')]"
+          },
+          "userSPFarmUsername": {
+            "value": "[parameters('userSPFarmUsername')]"
+          },
+          "userSPFarmPassword": {
+            "value": "[parameters('userSPFarmPassword')]"
+          },
+          "userSPSetupUsername": {
+            "value": "[parameters('userSPSetupUsername')]"
+          },
+          "userSPSetupPassword": {
+            "value": "[parameters('userSPSetupPassword')]"
+          },
+          "dbConfigName": {
+            "value": "[parameters('dbConfigName')]"
+          },
+          "dbSiteConfigName": {
+            "value": "[parameters('dbDefaultSiteConfigName')]"
+          },
+          "dbAdminContentName": {
+            "value": "[parameters('dbAdminContentName')]"
+          },
+          "sqlVMName": {
+            "value": "[variables('sqlVMName')]"
+          },
+          "fqdn": {
+            "value": "[variables('spFqdn')]"
+          },
+          "spSiteTemplateName": {
+            "value": "[parameters('spDefaultSiteTemplateName')]"
+          },
+          "spFarmPassphrase": {
+            "value": "[parameters('spFarmPassphrase')]"
+          },
+          "spFarmName": {
+            "value": "[variables('spFarmName')]"
           }
         }
       }

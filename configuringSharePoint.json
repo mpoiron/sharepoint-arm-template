@@ -1,0 +1,110 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "vmName": {
+      "type": "string"
+    },
+    "dscModulesUrl": {
+      "type": "string"
+    },
+    "dscFunction": {
+      "type": "string"
+    },
+    "domainName": {
+      "type": "string"
+    },
+    "userAdminUsername": {
+      "type": "string"
+    },
+    "userAdminPassword": {
+      "type": "securestring"
+    },
+    "userSPFarmUsername": {
+      "type": "string"
+    },
+    "userSPFarmPassword": {
+      "type": "securestring"
+    },
+    "userSPSetupUsername": {
+      "type": "string"
+    },
+    "userSPSetupPassword": {
+      "type": "securestring"
+    },
+    "dbConfigName": {
+      "type": "string"
+    },
+    "dbSiteConfigName": {
+      "type": "string"
+    },
+    "dbAdminContentName": {
+      "type": "string"
+    },
+    "sqlVMName": {
+      "type": "string"
+    },
+    "fqdn": {
+      "type": "string"
+    },
+    "spSiteTemplateName": {
+      "type": "string"
+    },
+    "spFarmPassphrase": {
+      "type": "securestring"
+    },
+    "spFarmName": {
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(parameters('vmName'),'/ConfigureSPServer')]",
+      "apiVersion": "2015-06-15",
+      "location": "[resourceGroup().location]",
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.20",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "ModulesUrl": "[parameters('dscModulesUrl')]",
+          "wmfVersion": "5.1",
+          "ConfigurationFunction": "[parameters('dscFunction')]",
+          "Properties": {
+            "DomainName": "[parameters('domainName')]",
+            "AdminCreds": {
+              "UserName": "[parameters('userAdminUsername')]",
+              "Password": "PrivateSettingsRef:AdminPassword"
+            },
+            "SharePointSetupUserAccountcreds": {
+              "UserName": "[parameters('userSPSetupUsername')]",
+              "Password": "PrivateSettingsRef:SharePointSetupUserAccountPassword"
+            },
+            "SharePointFarmAccountcreds": {
+              "UserName": "[parameters('userSPFarmUsername')]",
+              "Password": "PrivateSettingsRef:SharePointFarmAccountPassword"
+            },
+            "SharePointFarmPassphrasecreds": {
+              "UserName": "ignore",
+              "Password": "PrivateSettingsRef:SharePointFarmPassphrasePassword"
+            },
+            "DatabaseName": "[parameters('dbConfigName')]",
+            "AdministrationContentDatabaseName": "[parameters('dbAdminContentName')]",
+            "DatabaseServer": "[concat(parameters('sqlVMName'),'.',parameters('domainName'))]",
+            "Configuration": "[concat('{\"roles\":[{\"type\":\"application\",\"properties\":{\"fqdn\":\"',parameters('fqdn'),'\",\"port\":8000}},{\"type\":\"web\",\"properties\":{\"webApp\":{\"name\":\"',parameters('spFarmName'),'\",\"applicationPool\":\"',parameters('spFarmName'),' AppPool\",\"applicationPoolAccount\":\"', parameters('userSPFarmUsername'),'\",\"url\":\"http://',parameters('fqdn'),'\",\"port\":80,\"hostHeader\":\"',parameters('fqdn'),'\",\"databaseName\":\"',parameters('dbSiteConfigName'),'\"},\"site\":{\"name\":\"',parameters('spFarmName'),'\",\"template\":\"',parameters('spSiteTemplateName'),'\",\"url\":\"http://',parameters('fqdn'),'\",\"ownerAliasDomain\":\"',parameters('domainName'),'\",\"ownerAliasUserName\":\"',parameters('userSPFarmUsername'),'\",\"secondaryOwnerAliasDomain\":\"',parameters('domainName'),'\",\"secondaryOwnerAliasUserName\":\"',parameters('userAdminUsername'),'\"}}}],\"configureForHa\":\"False\",\"loadBalancedSetProbePort\":0}')]"
+          }
+        },
+        "protectedSettings": {
+          "Items": {
+            "AdminPassword": "[parameters('userAdminPassword')]",
+            "SharePointSetupUserAccountPassword": "[parameters('userSPSetupPassword')]",
+            "SharePointFarmAccountPassword": "[parameters('userSPFarmPassword')]",
+            "SharePointFarmPassphrasePassword": "[parameters('spFarmPassphrase')]"
+          }
+        }
+      }
+    }
+  ]
+}

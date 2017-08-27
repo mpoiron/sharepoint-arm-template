@@ -2,22 +2,34 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "spVMName": {
+    "vmName": {
       "type": "string"
     },
-    "spPrepareModulesURL": {
+    "vmSize": {
       "type": "string"
     },
-    "spPreparationFunction": {
+    "dscModulesUrl": {
       "type": "string"
     },
-    "adminUsername": {
+    "dscFunction": {
       "type": "string"
     },
-    "adminPassword": {
+    "userAdminUsername": {
+      "type": "string"
+    },
+    "userAdminPassword": {
       "type": "securestring"
     },
-    "spVMSize": {
+    "storageAccountName": {
+      "type": "string"
+    },
+    "availabilitySetName": {
+      "type": "string"
+    },
+    "nicName": {
+      "type": "string"
+    },
+    "dnsServerAddress": {
       "type": "string"
     },
     "spVersion": {
@@ -27,40 +39,30 @@
         "2016"
       ]
     },
-    "spAvailabilitySetName": {
+    "osDiskStorageType": {
       "type": "string"
     },
-    "spNicName": {
-      "type": "string"
-    },
-    "storageAccountNamePrefix": {
-      "type": "string"
-    },
-    "DNSServerAddress": {
+    "dataDiskStorageType": {
       "type": "string"
     }
   },
-  "variables": {
-    "osDiskName": "[concat(parameters('spVMName'), '-OsDisk')]",
-    "dataDiskName": "[concat(parameters('spVMName'), '-DataDisk1')]"
-  },
   "resources": [
     {
-      "apiVersion": "2015-06-15",
+      "apiVersion": "2017-03-30",
       "type": "Microsoft.Compute/virtualMachines",
-      "name": "[parameters('spVMName')]",
+      "name": "[parameters('vmName')]",
       "location": "[resourceGroup().location]",
       "properties": {
         "hardwareProfile": {
-          "vmSize": "[parameters('spVMSize')]"
+          "vmSize": "[parameters('vmSize')]"
         },
         "availabilitySet": {
-          "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('spAvailabilitySetName'))]"
+          "id": "[resourceId('Microsoft.Compute/availabilitySets', parameters('availabilitySetName'))]"
         },
         "osProfile": {
-          "computerName": "[parameters('spVMName')]",
-          "adminUsername": "[parameters('adminUsername')]",
-          "adminPassword": "[parameters('adminPassword')]"
+          "computerName": "[parameters('vmName')]",
+          "adminUsername": "[parameters('userAdminUsername')]",
+          "adminPassword": "[parameters('userAdminPassword')]"
         },
         "storageProfile": {
           "imageReference": {
@@ -70,19 +72,19 @@
             "version": "latest"
           },
           "osDisk": {
-            "name": "osdisk",
-            "vhd": {
-              "uri": "[concat('https://',parameters('storageAccountNamePrefix'), '.blob.core.windows.net/vhds/', variables('osDiskName'), '.vhd')]"
+            "name": "[concat(parameters('vmName'), '-OsDisk')]",
+            "managedDisk": {
+              "storageAccountType": "[parameters('osDiskStorageType')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
           },
           "dataDisks": [
             {
-              "vhd": {
-                "uri": "[concat('https://',parameters('storageAccountNamePrefix'), '.blob.core.windows.net/vhds/', variables('dataDiskName'), '.vhd')]"
+              "name": "[concat(parameters('vmName'),'-DataDisk1')]",
+              "managedDisk": {
+                "storageAccountType": "[parameters('dataDiskStorageType')]"
               },
-              "name": "[concat(parameters('spVMName'),'-DataDisk1')]",
               "createOption": "Empty",
               "caching": "None",
               "diskSizeGB": "1000",
@@ -93,24 +95,24 @@
         "networkProfile": {
           "networkInterfaces": [
             {
-              "id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('spNicName'))]"
+              "id": "[resourceId('Microsoft.Network/networkInterfaces',parameters('nicName'))]"
             }
           ]
         },
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": "true",
-            "storageUri": "[concat('https://',parameters('storageAccountNamePrefix'), '.blob.core.windows.net')]"
+            "storageUri": "[concat('https://', parameters('storageAccountName'), '.blob.core.windows.net')]"
           }
         }
       }
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(parameters('spVMName'),'/ConfigureSPServer')]",
+      "name": "[concat(parameters('vmName'),'/ConfigureSPServer')]",
       "apiVersion": "2015-06-15",
       "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', parameters('spVMName'))]"
+        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
       ],
       "location": "[resourceGroup().location]",
       "properties": {
@@ -119,15 +121,16 @@
         "typeHandlerVersion": "2.2",
         "autoUpgradeMinorVersion": true,
         "settings": {
-          "ModulesUrl": "[parameters('spPrepareModulesURL')]",
+          "ModulesUrl": "[parameters('dscModulesUrl')]",
           "wmfVersion": "5.1",
-          "ConfigurationFunction": "[parameters('spPreparationFunction')]",
+          "ConfigurationFunction": "[parameters('dscFunction')]",
           "Properties": {
-            "DNSServer": "[parameters('DNSServerAddress')]"
+            "DNSServer": "[parameters('dnsServerAddress')]"
           }
         },
         "protectedSettings": null
       }
     }
-  ]
+  ],
+  "outputs": {}
 }

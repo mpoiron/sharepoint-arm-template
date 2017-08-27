@@ -2,76 +2,73 @@
   "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
   "contentVersion": "1.0.0.0",
   "parameters": {
-    "location": {
+    "vmName": {
       "type": "string"
     },
-    "sqlVMName": {
+    "dscModulesUrl": {
       "type": "string"
     },
-    "adminUsername": {
-      "type": "string"
-    },
-    "adminPassword": {
-      "type": "securestring"
-    },
-    "sqlConfgureModulesURL": {
-      "type": "string"
-    },
-    "sqlConfigurationFunction": {
+    "dscFunction": {
       "type": "string"
     },
     "domainName": {
       "type": "string"
     },
-    "sqlServerServiceAccountUserName": {
+    "userAdminUsername": {
       "type": "string"
     },
-    "sharePointSetupUserAccountUserName": {
-      "type": "string"
-    },
-    "sqlServerServiceAccountPassword": {
+    "userAdminPassword": {
       "type": "securestring"
     },
-    "sharePointSetupUserAccountPassword": {
+    "userSQLServiceUsername": {
+      "type": "string"
+    },
+    "userSQLServicePassword": {
+      "type": "securestring"
+    },
+    "userSPSetupUsername": {
+      "type": "string"
+    },
+    "userSPSetupPassword": {
       "type": "securestring"
     }
   },
   "resources": [
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(parameters('sqlVMName'),'/CreateSQLServer')]",
+      "name": "[concat(parameters('vmName'),'/ConfigureSQLServer')]",
       "apiVersion": "2015-06-15",
-      "location": "[parameters('location')]",
+      "location": "[resourceGroup().location]",
       "properties": {
         "publisher": "Microsoft.Powershell",
         "type": "DSC",
         "typeHandlerVersion": "2.20",
         "autoUpgradeMinorVersion": true,
         "settings": {
-          "ModulesUrl": "[parameters('sqlConfgureModulesURL')]",
+          "ModulesUrl": "[parameters('dscModulesUrl')]",
           "wmfVersion": "5.1",
-          "ConfigurationFunction": "[parameters('sqlConfigurationFunction')]",
+          "ConfigurationFunction": "[parameters('dscFunction')]",
           "Properties": {
             "DomainName": "[parameters('domainName')]",
             "AdminCreds": {
-              "UserName": "[parameters('adminUsername')]",
+              "UserName": "[parameters('userAdminUsername')]",
               "Password": "PrivateSettingsRef:AdminPassword"
             },
             "SqlServerServiceAccountcreds": {
-              "UserName": "[parameters('sqlServerServiceAccountUserName')]",
+              "UserName": "[parameters('userSQLServiceUsername')]",
               "Password": "PrivateSettingsRef:SqlServerServiceAccountPassword"
             },
             "SharePointSetupUserAccountcreds": {
-              "UserName": "[parameters('sharePointSetupUserAccountUserName')]",
+              "UserName": "[parameters('userSPSetupUsername')]",
               "Password": "PrivateSettingsRef:SharePointSetupUserAccountPassword"
             }
           }
         },
         "protectedSettings": {
           "Items": {
-            "AdminPassword": "[parameters('adminPassword')]",
-            "SqlServerServiceAccountPassword": "[parameters('sqlServerServiceAccountPassword')]",
-            "SharePointSetupUserAccountPassword": "[parameters('sharePointSetupUserAccountPassword')]"
+            "AdminPassword": "[parameters('userAdminPassword')]",
+            "SqlServerServiceAccountPassword": "[parameters('userSQLServicePassword')]",
+            "SharePointSetupUserAccountPassword": "[parameters('userSPSetupPassword')]"
           }
         }
       }

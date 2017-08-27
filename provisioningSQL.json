@@ -108,14 +108,14 @@
         "diagnosticsProfile": {
           "bootDiagnostics": {
             "enabled": "true",
-            "storageUri": "[concat('https://',parameters('storageAccountName'), '.blob.core.windows.net')]"
+            "storageUri": "[concat('https://',  parameters('storageAccountName'), '.blob.core.windows.net')]"
           }
         }
       }
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(parameters('vmName'),'/CreatingSQLServer')]",
+      "name": "[concat(parameters('vmName'),'/ConfigureSQLServer')]",
       "apiVersion": "2015-06-15",
       "location": "[resourceGroup().location]",
       "dependsOn": [

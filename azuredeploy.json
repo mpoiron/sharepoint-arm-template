@@ -91,12 +91,20 @@
         "description": "The Sharepoint Farm Passphrase"
       }
     },
+    "spUsePublicIP": {
+      "type": "bool",
+      "defaultValue": false
+    },    
     "spVMSize": {
       "type": "string",
       "metadata": {
         "description": "The size of the VM Created"
       },
       "defaultValue": "Standard_DS3"
+    },
+    "sqlUsePublicIP": {
+      "type": "bool",
+      "defaultValue": false
     },
     "sqlVMSize": {
       "type": "string",
@@ -159,13 +167,12 @@
   },
   "variables": {
     "_assetLocation": "[concat(parameters('_baseUrl'),'/dsc')]",
-    "adAvailabilitySetName": "[concat(parameters('spFarmName'),'-ad-as')]",
-    "adConfigurationFunction": "CreateADPDC.ps1\\CreateADPDC",
-    "adModulesURL": "[concat(variables('_assetLocation'),'/CreateADPDC.ps1.zip')]",
-    "adNicName": "[concat(parameters('spFarmName'), '-ad-vm1-nic')]",
-    "adPublicIPAddressName": "[concat(parameters('spFarmName'), '-ad-vm1-pip')]",
+    "adAvailabilitySetName": "[concat(parameters('spFarmName'),'-ad1-as')]",
+    "adNicAddress": "10.0.0.4",
+    "adNicName": "[concat(parameters('spFarmName'), '-ad1-nic')]",
+    "adPublicIPAddressName": "[concat(parameters('spFarmName'), '-ad1-pip')]",
     "adPublicIpResourceId": "[resourceId('Microsoft.Network/publicIPAddresses', variables('adPublicIPAddressName'))]",
-    "adVMName": "[concat(parameters('spFarmName'),'-ad-vm1')]",
+    "adVMName": "[concat(parameters('spFarmName'),'-ad1')]",
     "commonNetworkSecurityGroupId": "[toLower(resourceId('Microsoft.Network/networkSecurityGroups', variables('commonNetworkSecurityGroupName')))]",
     "commonNetworkSecurityGroupName": "[concat(parameters('spFarmName'), '-common-nsg')]",
     "commonStorageAccountName": "[concat(parameters('commonStorageAccountNamePrefix'), '01')]",
@@ -176,6 +183,10 @@
     "dbAdminContentName": "SP_AdminContent",
     "dbConfigName": "SP_Config",
     "dbContentName": "WSS_Content_80",
+    "dscADConfigurationFunction": "CreateADPDC.ps1\\CreateADPDC",
+    "dscADModulesURL": "[concat(variables('_assetLocation'),'/ProvisionDomainController.ps1.zip')]",
+    "dscSQLPrepareModulesUrl": "[concat(variables('_assetLocation'), '/PrepareSqlServer.ps1.zip')]",
+    "dscSQLPrepareFunction": "PrepareSqlServer.ps1\\PrepareSqlServer",
     "urlCreatingAvailabilitySet": "[concat(parameters('_baseUrl'),'/creatingAvailabilitySet.json')]",
     "urlCreatingNetworkSecurityGroup": "[concat(parameters('_baseUrl'),'/creatingNetworkSecurityGroup.json')]",
     "urlCreatingNIC": "[concat(parameters('_baseUrl'),'/creatingNIC.json')]",
@@ -184,6 +195,7 @@
     "urlCreatingStorageAccount": "[concat(parameters('_baseUrl'),'/creatingStorageAccount.json')]",
     "urlCreatingVNet": "[concat(parameters('_baseUrl'),'/creatingVNet.json')]",
     "urlProvisioningDomainController": "[concat(parameters('_baseUrl'),'/provisioningDomainController.json')]",
+    "urlProvisioningSQLServer": "[concat(parameters('_baseUrl'),'/provisioningSQL.json')]",
     "urlUpdatingNICPublicIP": "[concat(parameters('_baseUrl'),'/updatingNICPublicIP.json')]"
   },
   "resources": [
@@ -312,6 +324,18 @@
                     "id": "[variables('commonNetworkSecurityGroupId')]"
                   }
                 }
+              },
+              {
+                "name": "2013",
+                "properties": {
+                  "addressPrefix": "10.0.1.0/24"
+                }
+              },
+              {
+                "name": "2016",
+                "properties": {
+                  "addressPrefix": "10.0.2.0/24"
+                }
               }
             ]
           }
@@ -365,7 +389,7 @@
             "value": "[variables('adNicName')]"
           },
           "nicIPAddress": {
-            "value": "10.0.0.4"
+            "value": "[variables('adNicAddress')]"
           },
           "subnetRef": {
             "value": "[variables('commonSubnetRef')]"
@@ -392,32 +416,32 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
-          "adVMName": {
+          "vmName": {
             "value": "[variables('adVMName')]"
           },
-          "adVMSize": {
+          "vmSize": {
             "value": "[parameters('adVMSize')]"
           },
-          "adAvailabilitySetName": {
+          "availabilitySetName": {
             "value": "[variables('adAvailabilitySetName')]"
           },
-          "adminUsername": {
+          "userAdminUsername": {
             "value": "[parameters('userAdminUsername')]"
           },
-          "adminPassword": {
+          "userAdminPassword": {
             "value": "[parameters('userAdminPassword')]"
           },
           "storageAccountName": {
             "value": "[variables('commonStorageAccountName')]"
           },
-          "adNicName": {
+          "nicName": {
             "value": "[variables('adNicName')]"
           },
-          "adModulesURL": {
-            "value": "[variables('adModulesURL')]"
+          "dscModulesUrl": {
+            "value": "[variables('dscADModulesURL')]"
           },
-          "adConfigurationFunction": {
-            "value": "[variables('adConfigurationFunction')]"
+          "dscConfigurationFunction": {
+            "value": "[variables('dscADConfigurationFunction')]"
           },
           "domainName": {
             "value": "[parameters('domainName')]"
@@ -442,6 +466,9 @@
           "contentVersion": "1.0.0.0"
         },
         "parameters": {
+          "adNicAddress": {
+            "value": "[variables('adNicAddress')]"
+          },
           "dbAdminContentName": {
             "value": "[variables('dbAdminContentName')]"
           },
@@ -472,6 +499,9 @@
           "spNicIpAddress": {
             "value": "10.0.1.4"
           },
+          "spUsePublicIP": {
+            "value": "[parameters('spUsePublicIP')]"
+          },
           "spVersion": {
             "value": "2013"
           },
@@ -483,6 +513,9 @@
           },
           "sqlNicIpAddress": {
             "value": "10.0.1.5"
+          },
+          "sqlUsePublicIP": {
+            "value": "[parameters('sqlUsePublicIP')]"
           },
           "sqlVersion": {
             "value": "SQL2014SP2-WS2012R2"
@@ -508,6 +541,12 @@
           "urlCreatingPublicIP": {
             "value": "[variables('urlCreatingPublicIP')]"
           },
+          "urlProvisioningSQLServer": {
+            "value": "[variables('urlProvisioningSQLServer')]"
+          },
+          "urlUpdatingNICPublicIP": {
+            "value": "[variables('urlUpdatingNICPublicIP')]"
+          },
           "userAdminPassword": {
             "value": "[parameters('userAdminPassword')]"
           },
@@ -531,6 +570,12 @@
           },
           "vNetName": {
             "value": "[variables('commonVirtualNetworkName')]"
+          },
+          "dscSQLPrepareModulesUrl": {
+            "value": "[variables('dscSQLPrepareModulesUrl')]"
+          },
+          "dscSQLPrepareFunction": {
+            "value": "[variables('dscSQLPrepareFunction')]"
           }
         }
       }

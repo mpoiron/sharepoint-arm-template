@@ -147,6 +147,12 @@
       "metadata": {
         "description": "The SQL Server Service account name"
       }
+    },
+    "osDiskStorageType": {
+      "type": "string"
+    },
+    "dataDiskStorageType": {
+      "type": "string"
     }
   },
   "variables": {
@@ -439,6 +445,12 @@
           },
           "domainName": {
             "value": "[parameters('domainName')]"
+          },
+          "osDiskStorageType": {
+            "type": "[parameters('osDiskStorageType')]"
+          },
+          "dataDiskStorageType": {
+            "type": "[parameters('dataDiskStorageType')]"
           }
         }
       }
@@ -597,6 +609,12 @@
           },
           "dscSQLConfigureFunction": {
             "value": "[variables('dscSQLConfigureFunction')]"
+          },
+          "osDiskStorageType": {
+            "value": "[parameters('osDiskStorageType')]"
+          },
+          "dataDiskStorageType": {
+            "value": "[parameters('dataDiskStorageType')]"
           }
         }
       }

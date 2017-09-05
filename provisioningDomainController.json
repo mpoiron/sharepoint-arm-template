@@ -31,6 +31,12 @@
     },
     "domainName": {
       "type": "string"
+    },
+    "osDiskStorageType": {
+      "type": "string"
+    },
+    "dataDiskStorageType": {
+      "type": "string"
     }
   },
   "resources": [
@@ -61,7 +67,7 @@
           "osDisk": {
             "name": "[concat(parameters('vmName'), '-OsDisk')]",
             "managedDisk": {
-              "storageAccountType": "Standard_LRS"
+              "storageAccountType": "[parameters('osDiskStorageType')]"
             },
             "caching": "ReadWrite",
             "createOption": "FromImage"
@@ -70,7 +76,7 @@
             {
               "name": "[concat(parameters('vmName'), '-DataDisk1')]",
               "managedDisk": {
-                "storageAccountType": "Standard_LRS"
+                "storageAccountType": "[parameters('dataDiskStorageType')]"
               },
               "caching": "None",
               "createOption": "Empty",

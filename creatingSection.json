@@ -152,6 +152,12 @@
     },
     "dscSQLConfigureFunction": {
       "type": "string"
+    },
+    "osDiskStorageType": {
+      "type": "string"
+    },
+    "dataDiskStorageType": {
+      "type": "string"
     }
   },
   "variables": {
@@ -497,10 +503,10 @@
             "value": "[parameters('sqlVersion')]"
           },
           "osDiskStorageType": {
-            "value": "Standard_LRS"
+            "value": "[parameters('osDiskStorageType')]"
           },
           "dataDiskStorageType": {
-            "value": "Premium_LRS"
+            "value": "[parameters('dataDiskStorageType')]"
           }
         }
       }
@@ -554,10 +560,10 @@
             "value": "[parameters('spVersion')]"
           },
           "osDiskStorageType": {
-            "value": "Standard_LRS"
+            "value": "[parameters('osDiskStorageType')]"
           },
           "dataDiskStorageType": {
-            "value": "Premium_LRS"
+            "value": "[parameters('dataDiskStorageType')]"
           }
         }
       }

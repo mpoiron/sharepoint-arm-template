@@ -612,6 +612,12 @@
           },
           "userSPSetupPassword": {
             "value": "[parameters('userSPSetupPassword')]"
+          },
+          "osDiskStorageType": {
+            "value": "[parameters('osDiskStorageType')]"
+          },
+          "dataDiskStorageType": {
+            "value": "[parameters('dataDiskStorageType')]"
           }
         }
       }
@@ -683,6 +689,12 @@
           },
           "spFarmName": {
             "value": "[variables('spFarmName')]"
+          },
+          "osDiskStorageType": {
+            "value": "[parameters('osDiskStorageType')]"
+          },
+          "dataDiskStorageType": {
+            "value": "[parameters('dataDiskStorageType')]"
           }
         }
       }

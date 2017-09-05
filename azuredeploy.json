@@ -447,10 +447,10 @@
             "value": "[parameters('domainName')]"
           },
           "osDiskStorageType": {
-            "type": "[parameters('osDiskStorageType')]"
+            "value": "[parameters('osDiskStorageType')]"
           },
           "dataDiskStorageType": {
-            "type": "[parameters('dataDiskStorageType')]"
+            "value": "[parameters('dataDiskStorageType')]"
           }
         }
       }

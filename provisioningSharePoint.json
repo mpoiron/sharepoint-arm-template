@@ -106,30 +106,6 @@
           }
         }
       }
-    },
-    {
-      "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(parameters('vmName'),'/ConfigureSPServer')]",
-      "apiVersion": "2015-06-15",
-      "dependsOn": [
-        "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"
-      ],
-      "location": "[resourceGroup().location]",
-      "properties": {
-        "publisher": "Microsoft.Powershell",
-        "type": "DSC",
-        "typeHandlerVersion": "2.2",
-        "autoUpgradeMinorVersion": true,
-        "settings": {
-          "ModulesUrl": "[parameters('dscModulesUrl')]",
-          "wmfVersion": "5.1",
-          "ConfigurationFunction": "[parameters('dscFunction')]",
-          "Properties": {
-            "DNSServer": "[parameters('dnsServerAddress')]"
-          }
-        },
-        "protectedSettings": null
-      }
     }
   ],
   "outputs": {}

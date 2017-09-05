@@ -773,6 +773,12 @@
           },
           "dscSQLConfigureFunction": {
             "value": "[variables('dscSQLConfigureFunction')]"
+          },
+          "osDiskStorageType": {
+            "value": "[parameters('osDiskStorageType')]"
+          },
+          "dataDiskStorageType": {
+            "value": "[parameters('dataDiskStorageType')]"
           }
         }
       }

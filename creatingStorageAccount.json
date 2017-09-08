@@ -27,9 +27,9 @@
       "name": "[concat(parameters('storageAccountName'))]",
       "apiVersion": "2017-06-01",
       "location": "[resourceGroup().location]",
-      "properties": {
-        "accountType": "[parameters('storageAccountType')]",
-        "kind": "BlobStorage"
+      "kind": "BlobStorage",
+      "sku": {
+        "name": "[parameters('storageAccountType')]"
       }
     }
   ],

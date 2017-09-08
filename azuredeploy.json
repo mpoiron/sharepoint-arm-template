@@ -491,7 +491,7 @@
             "value": "[parameters('spDefaultSiteTemplateName')]"
           },
           "spDNSPrefix": {
-            "value": "[concat(parameters('commonDNSPrefix'), '13-sp')]"
+            "value": "[concat(parameters('commonDNSPrefix'), '13-sp1')]"
           },
           "spFarmNamePrefix": {
             "value": "[parameters('spFarmName')]"
@@ -655,7 +655,7 @@
             "value": "[parameters('spDefaultSiteTemplateName')]"
           },
           "spDNSPrefix": {
-            "value": "[concat(parameters('commonDNSPrefix'), '-sp16')]"
+            "value": "[concat(parameters('commonDNSPrefix'), '16-sp1')]"
           },
           "spFarmNamePrefix": {
             "value": "[parameters('spFarmName')]"

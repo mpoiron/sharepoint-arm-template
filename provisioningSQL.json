@@ -81,7 +81,7 @@
               "managedDisk": {
                 "storageAccountType": "[parameters('dataDiskStorageType')]"
               },
-              "diskSizeGB": "120",
+              "diskSizeGB": "127",
               "createOption": "Empty",
               "caching": "ReadOnly",
               "lun": 0
@@ -91,7 +91,7 @@
               "managedDisk": {
                 "storageAccountType": "[parameters('dataDiskStorageType')]"
               },
-              "diskSizeGB": "120",
+              "diskSizeGB": "127",
               "createOption": "Empty",
               "caching": "None",
               "lun": 1

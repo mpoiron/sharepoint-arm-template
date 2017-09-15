@@ -87,7 +87,7 @@
               },
               "createOption": "Empty",
               "caching": "None",
-              "diskSizeGB": "120",
+              "diskSizeGB": "127",
               "lun": 0
             }
           ]

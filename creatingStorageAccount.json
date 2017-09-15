@@ -30,9 +30,6 @@
       "kind": "Storage",
       "sku": {
         "name": "[parameters('storageAccountType')]"
-      },
-      "properties": {
-        "accessTier": "Hot"
       }
     }
   ],

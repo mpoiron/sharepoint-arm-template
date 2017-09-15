@@ -1,14 +1,23 @@
-# Create a new Sharepoint Farm with 3 VMs
+# Instructions
 
-This template creates three new Azure VMs, each with a public IP address and load balancer and a VNet, it configures one VM to be an AD DC for a new Forest and Domain, one with SQL Server 2014 SP1 domain joined and a third VM with a Sharepoint 2013 farm and site, all VMs have public facing RDP
+## Prérequis
 
-Click the button below to deploy
+Pour utiliser le template, vous devez avoir un groupe de ressource existant.
+Vous pouvez le créer dans le [Portal Azure](https://portal.azure.com/#create/Microsoft.ResourceGroup) ou avec la ligne de commande suivante :  
+``` bash
+az group create -n <resource-group-name> -l <location>
+```
 
-<a href="https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-quickstart-templates%2Fmaster%2Fsharepoint-three-vm%2Fazuredeploy.json" target="_blank">
-    <img src="http://azuredeploy.net/deploybutton.png"/>
-</a>
-<a href="http://armviz.io/#/?load=https%3A%2F%2Fraw.githubusercontent.com%2FAzure%2Fazure-quickstart-templates%2Fmaster%2Fsharepoint-three-vm%2Fazuredeploy.json" target="_blank">
-    <img src="http://armviz.io/visualizebutton.png"/>
-</a>
+Le template est séparé en plusieurs fichiers qui doivent tous être disponible publiquement avec leur url.
+La méthode recommandée est d'ajouter les fichiers dans un stockage blob et de générer un token SAS pour y acccéder ([tutorial](https://docs.microsoft.com/fr-fr/azure/azure-resource-manager/resource-manager-powershell-sas-token))
 
-Notes: Sharepoint farm name must not contain spaces.
+## Déployer
+### Avec Azure CLI :
+
+``` bash
+az group deployment create --resource-group <resource-group-name> --template-uri <template-uri> --parameters <parameter-file-path>|<name=value>
+```
+
+## Edition
+
+Si vous ajouter des ressources dans le template, veuillez suivre les [conventions de nommage](https://docs.microsoft.com/fr-fr/azure/architecture/best-practices/naming-conventions#naming-rules-and-restrictions) et préfixer par le paramètre `baseName`.

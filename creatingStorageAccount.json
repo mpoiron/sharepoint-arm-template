@@ -30,6 +30,9 @@
       "kind": "BlobStorage",
       "sku": {
         "name": "[parameters('storageAccountType')]"
+      },
+      "properties": {
+        "accessTier": "Hot"
       }
     }
   ],

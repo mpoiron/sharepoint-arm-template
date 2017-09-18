@@ -108,8 +108,6 @@ function CreateNewOrJoinExistingFarm
         [PSCredential] $Passphrase
     )
 
-    New-EventLog -LogName "Microsoft-Windows-PowerShell/Operational" -Source "SharePointDeployment" -ea SilentlyContinue
-
     try
     {
         Write-EventLog -LogName "Microsoft-Windows-PowerShell/Operational" -Source "SharePointDeployment" -EventId 0 -Message "Testing if '$($env:COMPUTERNAME)' is a member of a farm ..."

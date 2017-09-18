@@ -42,6 +42,8 @@ configuration ConfigureSharePointServer
     [System.Management.Automation.PSCredential ]$FarmCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($SharePointFarmAccountcreds.UserName)", $SharePointFarmAccountcreds.Password)
     [System.Management.Automation.PSCredential ]$SPsetupCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($SharePointSetupUserAccountcreds.UserName)", $SharePointSetupUserAccountcreds.Password)
 
+    New-EventLog -LogName "Microsoft-Windows-PowerShell/Operational" -Source "SharePointDeployment" -ea SilentlyContinue
+
     # Install Sharepoint Module
     $ModuleFilePath="$PSScriptRoot\SharePointServer.psm1"
     $ModuleName = "SharepointServer"

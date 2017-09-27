@@ -32,15 +32,6 @@
     "userSPSetupPassword": {
       "type": "securestring"
     },
-    "dbConfigName": {
-      "type": "string"
-    },
-    "dbSiteConfigName": {
-      "type": "string"
-    },
-    "dbAdminContentName": {
-      "type": "string"
-    },
     "sqlVMName": {
       "type": "string"
     },
@@ -49,9 +40,6 @@
     },
     "spSiteTemplateName": {
       "type": "string"
-    },
-    "spFarmPassphrase": {
-      "type": "securestring"
     },
     "spFarmName": {
       "type": "string"

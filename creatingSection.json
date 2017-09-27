@@ -44,6 +44,13 @@
         "2016"
       ]
     },
+    "spOsVersion": {
+      "type": "string",
+      "allowedValues": [
+        "2013",
+        "2016"
+      ]
+    },
     "spVMSize": {
       "type": "string"
     },
@@ -556,8 +563,8 @@
           "dnsServerAddress": {
             "value": "[parameters('adNicAddress')]"
           },
-          "spVersion": {
-            "value": "[parameters('spVersion')]"
+          "osVersion": {
+            "value": "[parameters('spOsVersion')]"
           },
           "osDiskStorageType": {
             "value": "[parameters('osDiskStorageType')]"

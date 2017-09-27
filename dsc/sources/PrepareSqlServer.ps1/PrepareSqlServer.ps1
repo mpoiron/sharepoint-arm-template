@@ -1,34 +1,43 @@
-#
-# Copyright="� Microsoft Corporation. All rights reserved."
-#
-
 configuration PrepareSqlServer
 {
-
     param
     (
         [Parameter(Mandatory)]
         [String]$DNSServer,
-        [Int]$RetryCount=30,
-        [Int]$RetryIntervalSec=60
+        [Int]$RetryCount = 30,
+        [Int]$RetryIntervalSec = 60
     )
 
-    Import-DscResource -ModuleName xComputerManagement, xNetworking, xDisk,cDisk
-    WaitForSqlSetup
-    $Interface=Get-NetAdapter|Where Name -Like "Ethernet*"|Select-Object -First 1
-    $InterfaceAlias=$($Interface.Name)
+    Import-DscResource -ModuleName xComputerManagement, xCredSSP, xNetworking, xDisk, cDisk
+    Wait-SqlSetup
+
+    $Interface = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
+    $InterfaceAlias = $Interface.Name
 
     Node localhost
     {
         LocalConfigurationManager
         {
-            ConfigurationMode = 'ApplyOnly'
+            ConfigurationMode = "ApplyOnly"
             RebootNodeIfNeeded = $true
         }
+
+        xCredSSP Server
+        {
+            Ensure = "Present"
+            Role = "Server"
+        }
+        xCredSSP Client
+        {
+            Ensure = "Present"
+            Role = "Client"
+            DelegateComputers = "*.$Domain", "localhost"
+        }
+
         xWaitforDisk Disk2
         {
             DiskNumber = 2
-            RetryIntervalSec =$RetryIntervalSec
+            RetryIntervalSec = $RetryIntervalSec
             RetryCount = $RetryCount
         }
         cDiskNoRestart SQLDataDisk
@@ -37,12 +46,12 @@ configuration PrepareSqlServer
             DriveLetter = "F"
 	        DependsOn="[xWaitForDisk]Disk2"
         }
+
         xWaitforDisk Disk3
         {
             DiskNumber = 3
-            RetryIntervalSec =$RetryIntervalSec
+            RetryIntervalSec = $RetryIntervalSec
             RetryCount = $RetryCount
-            DependsOn="[cDiskNoRestart]SQLDataDisk"
         }
         cDiskNoRestart SQLLogDisk
         {
@@ -50,6 +59,7 @@ configuration PrepareSqlServer
             DriveLetter = "G"
             DependsOn="[xWaitForDisk]Disk3"
         }
+
         xFirewall DatabaseEngineFirewallRule
         {
             Direction = "Inbound"
@@ -63,24 +73,17 @@ configuration PrepareSqlServer
             LocalPort = "1433"
             Ensure = "Present"
         }
-        WindowsFeature ADPS
-        {
-            Name = "RSAT-AD-PowerShell"
-            Ensure = "Present"
-            DependsOn = "[cDiskNoRestart]SQLDataDisk","[cDiskNoRestart]SQLLogDisk"
 
-        }
         xDnsServerAddress DnsServerAddress
         {
             Address        = $DNSServer
             InterfaceAlias = $InterfaceAlias
-            AddressFamily  = 'IPv4'
-            DependsOn="[WindowsFeature]ADPS"
+            AddressFamily  = "IPv4"
         }
-
     }
 }
-function WaitForSqlSetup
+
+function Wait-SqlSetup
 {
     # Wait for SQL Server Setup to finish before proceeding.
     while ($true)

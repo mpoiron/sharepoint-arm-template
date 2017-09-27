@@ -1,7 +1,3 @@
-#
-# Copyright="� Microsoft Corporation. All rights reserved."
-#
-
 configuration ConfigureSharePointServer
 {
 
@@ -54,15 +50,16 @@ configuration ConfigureSharePointServer
 
     Enable-CredSSPNTLM -DomainName $DomainName
 
-    Import-DscResource -ModuleName xComputerManagement, xActiveDirectory, cConfigureSharepoint, xCredSSP
+    Import-DscResource -ModuleName xComputerManagement, xActiveDirectory, xCredSSP
 
     Node localhost
     {
-            LocalConfigurationManager
+        LocalConfigurationManager
         {
             ConfigurationMode = 'ApplyOnly'
             RebootNodeIfNeeded = $true
         }
+
         xCredSSP Server
         {
             Ensure = "Present"
@@ -74,6 +71,7 @@ configuration ConfigureSharePointServer
             Role = "Client"
             DelegateComputers = "*.$Domain", "localhost"
         }
+
         xWaitForADDomain DscForestWait
         {
             DomainName = $DomainName
@@ -117,20 +115,6 @@ configuration ConfigureSharePointServer
             Password =$FarmCreds
             Ensure = "Present"
             DependsOn = "[xComputer]DomainJoin"
-        }
-
-        cConfigureSharepoint ConfigureSharepointServer
-        {
-            DomainName=$DomainName
-            DomainAdministratorCredential=$DomainCreds
-            DatabaseName=$DatabaseName
-            AdministrationContentDatabaseName=$AdministrationContentDatabaseName
-            DatabaseServer=$DatabaseServer
-            SetupUserAccountCredential=$SPsetupCreds
-            FarmAccountCredential=$SharePointFarmAccountcreds
-            FarmPassphrase=$SharePointFarmPassphrasecreds
-            Configuration=$Configuration
-            DependsOn = "[xADUser]CreateFarmAccount","[xADUser]CreateSetupAccount", "[Group]AddSetupUserAccountToLocalAdminsGroup"
         }
     }
 }
@@ -185,5 +169,12 @@ function Enable-CredSSPNTLM
     }
 
     Write-Verbose "DONE:Setting up CredSSP for NTLM"
+}
+
+function DisableLoopbackCheck
+{
+    # See KB896861 for more information about why this is necessary.
+    Write-Verbose -Message "Disabling Loopback Check ..."
+    New-ItemProperty HKLM:\System\CurrentControlSet\Control\Lsa -Name 'DisableLoopbackCheck' -value '1' -PropertyType dword -Force | Out-Null
 }
 

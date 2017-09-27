@@ -508,6 +508,9 @@
           "spVersion": {
             "value": "2013"
           },
+          "spOsVersion": {
+            "value": "2012-R2"
+          },
           "spVMSize": {
             "value": "[parameters('spVMSize')]"
           },
@@ -670,6 +673,9 @@
             "value": "[parameters('spUsePublicIP')]"
           },
           "spVersion": {
+            "value": "2016"
+          },
+          "spOsVersion": {
             "value": "2016"
           },
           "spVMSize": {

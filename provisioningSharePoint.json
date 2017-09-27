@@ -32,10 +32,10 @@
     "dnsServerAddress": {
       "type": "string"
     },
-    "spVersion": {
+    "osVersion": {
       "type": "string",
       "allowedValues": [
-        "2013",
+        "2012-R2",
         "2016"
       ]
     },
@@ -66,9 +66,9 @@
         },
         "storageProfile": {
           "imageReference": {
-            "publisher": "MicrosoftSharePoint",
-            "offer": "MicrosoftSharePointServer",
-            "sku": "[parameters('spVersion')]",
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "[concat(parameters('osVersion'), '-Datacenter')]",
             "version": "latest"
           },
           "osDisk": {

@@ -12,10 +12,12 @@
         [Int]$RetryIntervalSec=30
     )
 
-    Import-DscResource -ModuleName xActiveDirectory, xDisk, xNetworking, cDisk
-    [System.Management.Automation.PSCredential ]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
-    $Interface=Get-NetAdapter|Where Name -Like "Ethernet*"|Select-Object -First 1
-    $InterfaceAlias=$($Interface.Name)
+    Import-DscResource -ModuleName xActiveDirectory, xCredSSP, xDisk, xNetworking, cDisk
+
+    [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainName}\$($Admincreds.UserName)", $Admincreds.Password)
+
+    $Interface = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
+    $InterfaceAlias = $Interface.Name
 
     Node localhost
     {
@@ -24,6 +26,19 @@
             ConfigurationMode = 'ApplyOnly'
             RebootNodeIfNeeded = $true
         }
+
+        xCredSSP Server
+        {
+            Ensure = "Present"
+            Role = "Server"
+        }
+        xCredSSP Client
+        {
+            Ensure = "Present"
+            Role = "Client"
+            DelegateComputers = "*.$Domain", "localhost"
+        }
+
         WindowsFeature DNS
         {
             Ensure = "Present"
@@ -42,6 +57,7 @@
             AddressFamily  = 'IPv4'
 	        DependsOn = "[WindowsFeature]DNS"
         }
+
         xWaitforDisk Disk2
         {
              DiskNumber = 2
@@ -54,6 +70,7 @@
             DriveLetter = "F"
 	        DependsOn="[xWaitForDisk]Disk2"
         }
+
         WindowsFeature ADDSInstall
         {
             Ensure = "Present"
@@ -65,6 +82,7 @@
             Ensure = "Present"
             Name = "RSAT-ADDS"
         }
+
         xADDomain FirstDS
         {
             DomainName = $DomainName
@@ -75,6 +93,7 @@
             SysvolPath = "F:\SYSVOL"
 	        DependsOn="[WindowsFeature]ADDSInstall"
         }
+
         xADDomainDefaultPasswordPolicy PasswordPolicy
         {
             DomainName = $DomainName

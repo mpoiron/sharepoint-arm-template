@@ -78,21 +78,14 @@
               "UserName": "[parameters('userAdminUsername')]",
               "Password": "PrivateSettingsRef:AdminPassword"
             },
-            "SharePointSetupUserAccountcreds": {
+            "SharePointSetupUserAccountCreds": {
               "UserName": "[parameters('userSPSetupUsername')]",
               "Password": "PrivateSettingsRef:SharePointSetupUserAccountPassword"
             },
-            "SharePointFarmAccountcreds": {
+            "SharePointFarmAccountCreds": {
               "UserName": "[parameters('userSPFarmUsername')]",
               "Password": "PrivateSettingsRef:SharePointFarmAccountPassword"
             },
-            "SharePointFarmPassphrasecreds": {
-              "UserName": "ignore",
-              "Password": "PrivateSettingsRef:SharePointFarmPassphrasePassword"
-            },
-            "DatabaseName": "[parameters('dbConfigName')]",
-            "AdministrationContentDatabaseName": "[parameters('dbAdminContentName')]",
-            "DatabaseServer": "[concat(parameters('sqlVMName'),'.',parameters('domainName'))]",
             "Configuration": "[concat('{\"roles\":[{\"type\":\"application\",\"properties\":{\"fqdn\":\"',parameters('fqdn'),'\",\"port\":8000}},{\"type\":\"web\",\"properties\":{\"webApp\":{\"name\":\"',parameters('spFarmName'),'\",\"applicationPool\":\"',parameters('spFarmName'),' AppPool\",\"applicationPoolAccount\":\"', parameters('userSPFarmUsername'),'\",\"url\":\"http://',parameters('fqdn'),'\",\"port\":80,\"hostHeader\":\"',parameters('fqdn'),'\",\"databaseName\":\"',parameters('dbSiteConfigName'),'\"},\"site\":{\"name\":\"',parameters('spFarmName'),'\",\"template\":\"',parameters('spSiteTemplateName'),'\",\"url\":\"http://',parameters('fqdn'),'\",\"ownerAliasDomain\":\"',parameters('domainName'),'\",\"ownerAliasUserName\":\"',parameters('userSPFarmUsername'),'\",\"secondaryOwnerAliasDomain\":\"',parameters('domainName'),'\",\"secondaryOwnerAliasUserName\":\"',parameters('userAdminUsername'),'\"}}}],\"configureForHa\":\"False\",\"loadBalancedSetProbePort\":0}')]"
           }
         },
@@ -100,8 +93,7 @@
           "Items": {
             "AdminPassword": "[parameters('userAdminPassword')]",
             "SharePointSetupUserAccountPassword": "[parameters('userSPSetupPassword')]",
-            "SharePointFarmAccountPassword": "[parameters('userSPFarmPassword')]",
-            "SharePointFarmPassphrasePassword": "[parameters('spFarmPassphrase')]"
+            "SharePointFarmAccountPassword": "[parameters('userSPFarmPassword')]"
           }
         }
       }

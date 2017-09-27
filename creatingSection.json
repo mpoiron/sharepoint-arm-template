@@ -6,30 +6,14 @@
     "adNicAddress": {
       "type": "string"
     },
-    "dbAdminContentName": {
-      "type": "string"
-    },
-    "dbConfigName": {
-      "type": "string"
-    },
-    "dbDefaultSiteConfigName": {
-      "type": "string"
-    },
     "domainName": {
       "type": "string"
-    },
-    "spDefaultSiteTemplateName": {
-      "type": "string",
-      "defaultValue": "STS#0"
     },
     "spDNSPrefix": {
       "type": "string"
     },
     "spFarmNamePrefix": {
       "type": "string"
-    },
-    "spFarmPassphrase": {
-      "type": "securestring"
     },
     "spNicIpAddress": {
       "type": "string"
@@ -97,9 +81,6 @@
     "urlProvisioningSQLServer": {
       "type": "string"
     },
-    "urlConfiguringSPServer": {
-      "type": "string"
-    },
     "urlConfiguringSQLServer": {
       "type": "string"
     },
@@ -148,12 +129,6 @@
     "dscSQLPrepareFunction": {
       "type": "string"
     },
-    "dscSPConfigureModulesUrl": {
-      "type": "string"
-    },
-    "dscSPConfigureFunction": {
-      "type": "string"
-    },
     "dscSQLConfigureModulesUrl": {
       "type": "string"
     },
@@ -174,7 +149,6 @@
     "spAvailabilitySetName": "[concat(variables('spFarmName'),'-sp1-as')]",
     "spFarmName": "[concat(parameters('spFarmNamePrefix'), variables('_versionShortName'))]",
     "spVMName": "[concat(variables('spFarmName'), '-sp1')]",
-    "spFqdn":"[concat(parameters('spDNSPrefix'), '.', resourceGroup().location, '.cloudapp.azure.com')]",
     "spNicName": "[concat(variables('spVmName'), '-nic')]",
     "spPublicIpAddressName": "[concat(variables('spVMName'), '-pip')]",
     "spPublicIpResourceId": "[resourceId('Microsoft.Network/publicIPAddresses', variables('spPublicIpAddressName'))]",
@@ -548,6 +522,18 @@
           "userAdminPassword": {
             "value": "[parameters('userAdminPassword')]"
           },
+          "userSPFarmUsername": {
+            "value": "[parameters('userSPFarmUsername')]"
+          },
+          "userSPFarmPassword": {
+            "value": "[parameters('userSPFarmPassword')]"
+          },
+          "userSPSetupUsername": {
+            "value": "[parameters('userSPSetupUsername')]"
+          },
+          "userSPSetupPassword": {
+            "value": "[parameters('userSPSetupPassword')]"
+          },
           "storageAccountName": {
             "value": "[parameters('storageAccountName')]"
           },
@@ -619,77 +605,6 @@
           },
           "userSPSetupPassword": {
             "value": "[parameters('userSPSetupPassword')]"
-          }
-        }
-      }
-    },
-    {
-      "name": "[concat('ConfiguringSP', variables('_versionShortName'))]",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
-      "dependsOn": [
-        "[concat('ConfiguringSQL', variables('_versionShortName'))]"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[parameters('urlConfiguringSPServer')]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "vmName": {
-            "value": "[variables('spVMName')]"
-          },
-          "dscModulesUrl": {
-            "value": "[parameters('dscSPConfigureModulesUrl')]"
-          },
-          "dscFunction": {
-            "value": "[parameters('dscSPConfigureFunction')]"
-          },
-          "domainName": {
-            "value": "[parameters('domainName')]"
-          },
-          "userAdminUsername": {
-            "value": "[parameters('userAdminUsername')]"
-          },
-          "userAdminPassword": {
-            "value": "[parameters('userAdminPassword')]"
-          },
-          "userSPFarmUsername": {
-            "value": "[parameters('userSPFarmUsername')]"
-          },
-          "userSPFarmPassword": {
-            "value": "[parameters('userSPFarmPassword')]"
-          },
-          "userSPSetupUsername": {
-            "value": "[parameters('userSPSetupUsername')]"
-          },
-          "userSPSetupPassword": {
-            "value": "[parameters('userSPSetupPassword')]"
-          },
-          "dbConfigName": {
-            "value": "[parameters('dbConfigName')]"
-          },
-          "dbSiteConfigName": {
-            "value": "[parameters('dbDefaultSiteConfigName')]"
-          },
-          "dbAdminContentName": {
-            "value": "[parameters('dbAdminContentName')]"
-          },
-          "sqlVMName": {
-            "value": "[variables('sqlVMName')]"
-          },
-          "fqdn": {
-            "value": "[variables('spFqdn')]"
-          },
-          "spSiteTemplateName": {
-            "value": "[parameters('spDefaultSiteTemplateName')]"
-          },
-          "spFarmPassphrase": {
-            "value": "[parameters('spFarmPassphrase')]"
-          },
-          "spFarmName": {
-            "value": "[variables('spFarmName')]"
           }
         }
       }

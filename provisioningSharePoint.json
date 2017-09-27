@@ -14,10 +14,25 @@
     "dscFunction": {
       "type": "string"
     },
+    "domainName": {
+      "type": "string"
+    },
     "userAdminUsername": {
       "type": "string"
     },
     "userAdminPassword": {
+      "type": "securestring"
+    },
+    "userSPFarmUsername": {
+      "type": "string"
+    },
+    "userSPFarmPassword": {
+      "type": "securestring"
+    },
+    "userSPSetupUsername": {
+      "type": "string"
+    },
+    "userSPSetupPassword": {
       "type": "securestring"
     },
     "storageAccountName": {
@@ -125,10 +140,29 @@
           "wmfVersion": "5.1",
           "ConfigurationFunction": "[parameters('dscFunction')]",
           "Properties": {
-            "DNSServer": "[parameters('dnsServerAddress')]"
+            "DnsServer": "[parameters('dnsServerAddress')]",
+            "DomainName": "[parameters('domainName')]",
+            "AdminCreds": {
+              "UserName": "[parameters('userAdminUsername')]",
+              "Password": "PrivateSettingsRef:AdminPassword"
+            },
+            "SharePointSetupUserAccountCreds": {
+              "UserName": "[parameters('userSPSetupUsername')]",
+              "Password": "PrivateSettingsRef:SharePointSetupUserAccountPassword"
+            },
+            "SharePointFarmAccountCreds": {
+              "UserName": "[parameters('userSPFarmUsername')]",
+              "Password": "PrivateSettingsRef:SharePointFarmAccountPassword"
+            }
           }
         },
-        "protectedSettings": null
+        "protectedSettings": {
+          "Items": {
+            "AdminPassword": "[parameters('userAdminPassword')]",
+            "SharePointSetupUserAccountPassword": "[parameters('userSPSetupPassword')]",
+            "SharePointFarmAccountPassword": "[parameters('userSPFarmPassword')]"
+          }
+        }
       }
     }
   ],

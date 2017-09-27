@@ -58,25 +58,12 @@
       },
       "defaultValue": "contoso.local"
     },
-    "spDefaultSiteTemplateName": {
-      "type": "string",
-      "metadata": {
-        "description": "The Sharepoint Content Site Template Name"
-      },
-      "defaultValue": "STS#0"
-    },
     "spFarmName": {
       "type": "string",
       "metadata": {
         "description": "The name of the Sharepoint farm"
       },
       "defaultValue": "spfarm"
-    },
-    "spFarmPassphrase": {
-      "type": "securestring",
-      "metadata": {
-        "description": "The Sharepoint Farm Passphrase"
-      }
     },
     "spUsePublicIP": {
       "type": "bool",
@@ -179,9 +166,6 @@
     "dscSPPrepareFunction": "PrepareSharePointServer.ps1\\PrepareSharePointServer",
     "dscSQLPrepareModulesUrl": "[concat(variables('_assetLocation'), '/PrepareSqlServer.ps1.zip')]",
     "dscSQLPrepareFunction": "PrepareSqlServer.ps1\\PrepareSqlServer",
-    "dscSP13ConfigureModulesUrl": "[concat(variables('_assetLocation'), '/ConfigureSharePointServer2013.ps1.zip')]",
-    "dscSP16ConfigureModulesUrl": "[concat(variables('_assetLocation'), '/ConfigureSharePointServer2016.ps1.zip')]",
-    "dscSPConfigureFunction": "ConfigureSharePointServer.ps1\\ConfigureSharePointServer",
     "dscSQLConfigureModulesUrl": "[concat(variables('_assetLocation'), '/ConfigureSqlServer.ps1.zip')]",
     "dscSQLConfigureFunction": "ConfigureSqlServer.ps1\\ConfigureSqlServer",
     "urlCreatingAvailabilitySet": "[concat(parameters('_baseUrl'),'/creatingAvailabilitySet.json')]",
@@ -475,29 +459,14 @@
           "adNicAddress": {
             "value": "[variables('adNicAddress')]"
           },
-          "dbAdminContentName": {
-            "value": "[variables('dbAdminContentName')]"
-          },
-          "dbConfigName": {
-            "value": "[variables('dbConfigName')]"
-          },
-          "dbDefaultSiteConfigName": {
-            "value": "[variables('dbContentName')]"
-          },
           "domainName": {
             "value": "[parameters('domainName')]"
-          },
-          "spDefaultSiteTemplateName": {
-            "value": "[parameters('spDefaultSiteTemplateName')]"
           },
           "spDNSPrefix": {
             "value": "[concat(parameters('commonDNSPrefix'), '13-sp1')]"
           },
           "spFarmNamePrefix": {
             "value": "[parameters('spFarmName')]"
-          },
-          "spFarmPassphrase": {
-            "value": "[parameters('spFarmPassphrase')]"
           },
           "spNicIpAddress": {
             "value": "10.0.1.4"
@@ -601,12 +570,6 @@
           "dscSQLPrepareFunction": {
             "value": "[variables('dscSQLPrepareFunction')]"
           },
-          "dscSPConfigureModulesUrl": {
-            "value": "[variables('dscSP13ConfigureModulesUrl')]"
-          },
-          "dscSPConfigureFunction": {
-            "value": "[variables('dscSPConfigureFunction')]"
-          },
           "dscSQLConfigureModulesUrl": {
             "value": "[variables('dscSQLConfigureModulesUrl')]"
           },
@@ -654,17 +617,11 @@
           "domainName": {
             "value": "[parameters('domainName')]"
           },
-          "spDefaultSiteTemplateName": {
-            "value": "[parameters('spDefaultSiteTemplateName')]"
-          },
           "spDNSPrefix": {
             "value": "[concat(parameters('commonDNSPrefix'), '16-sp1')]"
           },
           "spFarmNamePrefix": {
             "value": "[parameters('spFarmName')]"
-          },
-          "spFarmPassphrase": {
-            "value": "[parameters('spFarmPassphrase')]"
           },
           "spNicIpAddress": {
             "value": "10.0.2.4"
@@ -720,9 +677,6 @@
           "urlProvisioningSQLServer": {
             "value": "[variables('urlProvisioningSQLServer')]"
           },
-          "urlConfiguringSPServer": {
-            "value": "[variables('urlConfiguringSPServer')]"
-          },
           "urlConfiguringSQLServer": {
             "value": "[variables('urlConfiguringSQLServer')]"
           },
@@ -767,12 +721,6 @@
           },
           "dscSQLPrepareFunction": {
             "value": "[variables('dscSQLPrepareFunction')]"
-          },
-          "dscSPConfigureModulesUrl": {
-            "value": "[variables('dscSP16ConfigureModulesUrl')]"
-          },
-          "dscSPConfigureFunction": {
-            "value": "[variables('dscSPConfigureFunction')]"
           },
           "dscSQLConfigureModulesUrl": {
             "value": "[variables('dscSQLConfigureModulesUrl')]"

@@ -31,18 +31,6 @@
     },
     "userSPSetupPassword": {
       "type": "securestring"
-    },
-    "sqlVMName": {
-      "type": "string"
-    },
-    "fqdn": {
-      "type": "string"
-    },
-    "spSiteTemplateName": {
-      "type": "string"
-    },
-    "spFarmName": {
-      "type": "string"
     }
   },
   "resources": [
@@ -73,8 +61,7 @@
             "SharePointFarmAccountCreds": {
               "UserName": "[parameters('userSPFarmUsername')]",
               "Password": "PrivateSettingsRef:SharePointFarmAccountPassword"
-            },
-            "Configuration": "[concat('{\"roles\":[{\"type\":\"application\",\"properties\":{\"fqdn\":\"',parameters('fqdn'),'\",\"port\":8000}},{\"type\":\"web\",\"properties\":{\"webApp\":{\"name\":\"',parameters('spFarmName'),'\",\"applicationPool\":\"',parameters('spFarmName'),' AppPool\",\"applicationPoolAccount\":\"', parameters('userSPFarmUsername'),'\",\"url\":\"http://',parameters('fqdn'),'\",\"port\":80,\"hostHeader\":\"',parameters('fqdn'),'\",\"databaseName\":\"',parameters('dbSiteConfigName'),'\"},\"site\":{\"name\":\"',parameters('spFarmName'),'\",\"template\":\"',parameters('spSiteTemplateName'),'\",\"url\":\"http://',parameters('fqdn'),'\",\"ownerAliasDomain\":\"',parameters('domainName'),'\",\"ownerAliasUserName\":\"',parameters('userSPFarmUsername'),'\",\"secondaryOwnerAliasDomain\":\"',parameters('domainName'),'\",\"secondaryOwnerAliasUserName\":\"',parameters('userAdminUsername'),'\"}}}],\"configureForHa\":\"False\",\"loadBalancedSetProbePort\":0}')]"
+            }
           }
         },
         "protectedSettings": {

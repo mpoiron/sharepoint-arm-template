@@ -157,9 +157,6 @@
     "commonSubnetRef": "[concat(variables('commonVirtualNetworkId'),'/subnets/',variables('commonSubnetName'))]",
     "commonVirtualNetworkId": "[resourceId('Microsoft.Network/virtualNetworks', variables('commonVirtualNetworkName'))]",
     "commonVirtualNetworkName": "[concat(parameters('spFarmName'), '-vnet')]",
-    "dbAdminContentName": "SP_AdminContent",
-    "dbConfigName": "SP_Config",
-    "dbContentName": "WSS_Content_80",
     "dscADConfigurationFunction": "CreateADPDC.ps1\\CreateADPDC",
     "dscADModulesUrl": "[concat(variables('_assetLocation'),'/ProvisionDomainController.ps1.zip')]",
     "dscSPPrepareModulesUrl": "[concat(variables('_assetLocation'), '/PrepareSharePointServer.ps1.zip')]",
@@ -604,15 +601,6 @@
         "parameters": {
           "adNicAddress": {
             "value": "[variables('adNicAddress')]"
-          },
-          "dbAdminContentName": {
-            "value": "[variables('dbAdminContentName')]"
-          },
-          "dbConfigName": {
-            "value": "[variables('dbConfigName')]"
-          },
-          "dbDefaultSiteConfigName": {
-            "value": "[variables('dbContentName')]"
           },
           "domainName": {
             "value": "[parameters('domainName')]"

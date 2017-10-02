@@ -3,16 +3,32 @@ configuration PrepareSqlServer
     param
     (
         [Parameter(Mandatory)]
-        [String]$DNSServer,
+        [String]$DnsServer,
+
+        [Parameter(Mandatory)]
+        [System.Management.Automation.PSCredential]$AdminCreds,
+
+        [Parameter(Mandatory)]
+        [System.Management.Automation.PSCredential]$SqlServerServiceAccountCreds,
+
+        [Parameter(Mandatory)]
+        [System.Management.Automation.PSCredential]$SharePointSetupUserAccountCreds,
+        [String]$DomainNetBiosName=(Get-NetBIOSName -DomainName $DomainName),
+
         [Int]$RetryCount = 30,
         [Int]$RetryIntervalSec = 60
     )
 
-    Import-DscResource -ModuleName xComputerManagement, xCredSSP, xNetworking, xDisk, cDisk
+    Import-DscResource -ModuleName xActiveDirectory, xComputerManagement, xCredSSP, xDisk, xNetworking, xSql, xSQLServer, cDisk
+
     Wait-SqlSetup
 
     $Interface = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
     $InterfaceAlias = $Interface.Name
+
+    [System.Management.Automation.PSCredential]$DomainCreds = New-Object System.Management.Automation.PSCredential ("${DomainNetBiosName}\$($AdminCreds.UserName)", $AdminCreds.Password)
+    [System.Management.Automation.PSCredential]$SPSCreds = New-Object System.Management.Automation.PSCredential ("${DomainNetBiosName}\$($SharePointSetupUserAccountCreds.UserName)", $SharePointSetupUserAccountCreds.Password)
+    [System.Management.Automation.PSCredential]$SQLCreds = New-Object System.Management.Automation.PSCredential ("${DomainNetBiosName}\$($SqlServerServiceAccountCreds.UserName)", $SqlServerServiceAccountCreds.Password)
 
     Node localhost
     {
@@ -76,9 +92,101 @@ configuration PrepareSqlServer
 
         xDnsServerAddress DnsServerAddress
         {
-            Address        = $DNSServer
+            Address        = $DnsServer
             InterfaceAlias = $InterfaceAlias
             AddressFamily  = "IPv4"
+        }
+
+        xWaitForADDomain DscForestWait
+        {
+            DomainName = $DomainName
+            DomainUserCredential= $AdminCreds
+            RetryCount = $RetryCount
+            RetryIntervalSec = $RetryIntervalSec
+        }
+
+        xComputer DomainJoin
+        {
+            Name = $env:COMPUTERNAME
+            DomainName = $DomainName
+            Credential = $DomainCreds
+            DependsOn = "[xWaitForADDomain]DscForestWait"
+        }
+
+        xADUser CreateSqlServerServiceAccount
+        {
+            DomainAdministratorCredential = $DomainCreds
+            DomainName = $DomainName
+            UserName = $SqlServerServiceAccountCreds.UserName
+            Password = $SQLCreds
+            Ensure = "Present"
+            DependsOn = "[xComputer]DomainJoin"
+        }
+
+        xSqlServer ConfigureSqlServer
+        {
+            InstanceName = $env:COMPUTERNAME
+            SqlAdministratorCredential = $AdminCreds
+            ServiceCredential = $SQLCreds
+            MaxDegreeOfParallelism = 1
+            FilePath = "F:\DATA"
+            LogPath = "G:\LOG"
+            DomainAdministratorCredential = $DomainCreds
+            DependsOn = "[xADUser]CreateSqlServerServiceAccount"
+
+        }
+
+        xADUser CreateSharePointSetupAccount
+        {
+            DomainAdministratorCredential = $DomainCreds
+            DomainName = $DomainName
+            UserName = $SharePointSetupUserAccountCreds.UserName
+            Password = $SPSCreds
+            Ensure = "Present"
+            DependsOn = "[xComputer]DomainJoin"
+        }
+
+        xSqlLogin AddDomainAdminAccountToSysadminServerRole
+        {
+            Name = "${DomainNetBiosName}\$($AdminCreds.UserName)"
+            LoginType = "WindowsUser"
+            ServerRoles = "sysadmin"
+            Enabled = $true
+            Credential = $AdminCreds
+            DependsOn = "[xSqlServer]ConfigureSqlServer"
+        }
+        xSqlLogin ConfigureSharePointSetupAccountSqlLogin
+        {
+            Name = "${DomainNetBiosName}\$($SharePointSetupUserAccountCreds.UserName)"
+            LoginType = "WindowsUser"
+            ServerRoles = "securityadmin","dbcreator"
+            Enabled = $true
+            Credential = $AdminCreds
+            DependsOn = "[xADUser]CreateSharePointSetupAccount","[xSqlServer]ConfigureSqlServer"
+        }
+    }
+}
+
+function Get-NetBIOSName
+{
+    [OutputType([string])]
+    param(
+        [string]$DomainName
+    )
+
+    if ($DomainName.Contains('.')) {
+        $length=$DomainName.IndexOf('.')
+        if ( $length -ge 16) {
+            $length=15
+        }
+        return $DomainName.Substring(0,$length)
+    }
+    else {
+        if ($DomainName.Length -gt 15) {
+            return $DomainName.Substring(0,15)
+        }
+        else {
+            return $DomainName
         }
     }
 }
@@ -99,4 +207,3 @@ function Wait-SqlSetup
         }
     }
 }
-

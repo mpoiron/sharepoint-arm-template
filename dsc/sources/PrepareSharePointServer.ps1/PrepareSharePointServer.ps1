@@ -21,7 +21,7 @@ configuration PrepareSharePointServer
         [Int]$RetryIntervalSec = 60
     )
 
-    Import-DscResource -ModuleName xComputerManagement, xActiveDirectory, xCredSSP, xDisk, cDisk
+    Import-DscResource -ModuleName xComputerManagement, xActiveDirectory, xCredSSP, xDisk, xNetworking, cDisk
 
     $Interface = Get-NetAdapter | Where Name -Like "Ethernet*" | Select-Object -First 1
     $InterfaceAlias = $Interface.Name
@@ -65,7 +65,7 @@ configuration PrepareSharePointServer
             DependsOn = "[xWaitforDisk]Disk2"
         }
 
-        xDnsServerAddress DnsServerAddress
+        xDNSServerAddress DnsServerAddress
         {
             Address        = $DnsServer
             InterfaceAlias = $InterfaceAlias

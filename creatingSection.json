@@ -459,12 +459,6 @@
           "availabilitySetName": {
             "value": "[variables('sqlAvailabilitySetName')]"
           },
-          "userAdminUsername": {
-            "value": "[parameters('userAdminUsername')]"
-          },
-          "userAdminPassword": {
-            "value": "[parameters('userAdminPassword')]"
-          },
           "storageAccountName": {
             "value": "[parameters('storageAccountName')]"
           },
@@ -479,6 +473,27 @@
           },
           "dnsServerAddress": {
             "value": "[parameters('adNicAddress')]"
+          },
+          "domainName": {
+            "value": "[parameters('domainName')]"
+          },
+          "userAdminUsername": {
+            "value": "[parameters('userAdminUsername')]"
+          },
+          "userAdminPassword": {
+            "value": "[parameters('userAdminPassword')]"
+          },
+          "userSQLServiceUsername": {
+            "value": "[parameters('userSQLServiceUsername')]"
+          },
+          "userSQLServicePassword": {
+            "value": "[parameters('userSQLServicePassword')]"
+          },
+          "userSPSetupUsername": {
+            "value": "[parameters('userSQLServiceUsername')]"
+          },
+          "userSPSetupPassword": {
+            "value": "[parameters('userSPSetupPassword')]"
           },
           "sqlVersion": {
             "value": "[parameters('sqlVersion')]"

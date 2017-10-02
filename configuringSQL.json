@@ -49,28 +49,9 @@
           "wmfVersion": "5.1",
           "ConfigurationFunction": "[parameters('dscFunction')]",
           "Properties": {
-            "DomainName": "[parameters('domainName')]",
-            "AdminCreds": {
-              "UserName": "[parameters('userAdminUsername')]",
-              "Password": "PrivateSettingsRef:AdminPassword"
-            },
-            "SqlServerServiceAccountcreds": {
-              "UserName": "[parameters('userSQLServiceUsername')]",
-              "Password": "PrivateSettingsRef:SqlServerServiceAccountPassword"
-            },
-            "SharePointSetupUserAccountcreds": {
-              "UserName": "[parameters('userSPSetupUsername')]",
-              "Password": "PrivateSettingsRef:SharePointSetupUserAccountPassword"
-            }
           }
         },
-        "protectedSettings": {
-          "Items": {
-            "AdminPassword": "[parameters('userAdminPassword')]",
-            "SqlServerServiceAccountPassword": "[parameters('userSQLServicePassword')]",
-            "SharePointSetupUserAccountPassword": "[parameters('userSPSetupPassword')]"
-          }
-        }
+        "protectedSettings": null
       }
     }
   ],

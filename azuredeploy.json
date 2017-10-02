@@ -163,8 +163,6 @@
     "dscSPPrepareFunction": "PrepareSharePointServer.ps1\\PrepareSharePointServer",
     "dscSQLPrepareModulesUrl": "[concat(variables('_assetLocation'), '/PrepareSqlServer.ps1.zip')]",
     "dscSQLPrepareFunction": "PrepareSqlServer.ps1\\PrepareSqlServer",
-    "dscSQLConfigureModulesUrl": "[concat(variables('_assetLocation'), '/ConfigureSqlServer.ps1.zip')]",
-    "dscSQLConfigureFunction": "ConfigureSqlServer.ps1\\ConfigureSqlServer",
     "urlCreatingAvailabilitySet": "[concat(parameters('_baseUrl'),'/creatingAvailabilitySet.json')]",
     "urlCreatingNetworkSecurityGroup": "[concat(parameters('_baseUrl'),'/creatingNetworkSecurityGroup.json')]",
     "urlCreatingNIC": "[concat(parameters('_baseUrl'),'/creatingNIC.json')]",
@@ -175,8 +173,6 @@
     "urlProvisioningDomainController": "[concat(parameters('_baseUrl'),'/provisioningDomainController.json')]",
     "urlProvisioningSPServer": "[concat(parameters('_baseUrl'),'/provisioningSharePoint.json')]",
     "urlProvisioningSQLServer": "[concat(parameters('_baseUrl'),'/provisioningSQL.json')]",
-    "urlConfiguringSPServer": "[concat(parameters('_baseUrl'),'/configuringSharePoint.json')]",
-    "urlConfiguringSQLServer": "[concat(parameters('_baseUrl'),'/configuringSQL.json')]",
     "urlUpdatingNICPublicIP": "[concat(parameters('_baseUrl'),'/updatingNICPublicIP.json')]"
   },
   "resources": [
@@ -519,12 +515,6 @@
           "urlProvisioningSQLServer": {
             "value": "[variables('urlProvisioningSQLServer')]"
           },
-          "urlConfiguringSPServer": {
-            "value": "[variables('urlConfiguringSPServer')]"
-          },
-          "urlConfiguringSQLServer": {
-            "value": "[variables('urlConfiguringSQLServer')]"
-          },
           "urlUpdatingNICPublicIP": {
             "value": "[variables('urlUpdatingNICPublicIP')]"
           },
@@ -566,12 +556,6 @@
           },
           "dscSQLPrepareFunction": {
             "value": "[variables('dscSQLPrepareFunction')]"
-          },
-          "dscSQLConfigureModulesUrl": {
-            "value": "[variables('dscSQLConfigureModulesUrl')]"
-          },
-          "dscSQLConfigureFunction": {
-            "value": "[variables('dscSQLConfigureFunction')]"
           },
           "osDiskStorageType": {
             "value": "[parameters('osDiskStorageType')]"
@@ -665,9 +649,6 @@
           "urlProvisioningSQLServer": {
             "value": "[variables('urlProvisioningSQLServer')]"
           },
-          "urlConfiguringSQLServer": {
-            "value": "[variables('urlConfiguringSQLServer')]"
-          },
           "urlUpdatingNICPublicIP": {
             "value": "[variables('urlUpdatingNICPublicIP')]"
           },
@@ -709,12 +690,6 @@
           },
           "dscSQLPrepareFunction": {
             "value": "[variables('dscSQLPrepareFunction')]"
-          },
-          "dscSQLConfigureModulesUrl": {
-            "value": "[variables('dscSQLConfigureModulesUrl')]"
-          },
-          "dscSQLConfigureFunction": {
-            "value": "[variables('dscSQLConfigureFunction')]"
           },
           "osDiskStorageType": {
             "value": "[parameters('osDiskStorageType')]"

@@ -81,9 +81,6 @@
     "urlProvisioningSQLServer": {
       "type": "string"
     },
-    "urlConfiguringSQLServer": {
-      "type": "string"
-    },
     "urlUpdatingNICPublicIP": {
       "type": "string"
     },
@@ -127,12 +124,6 @@
       "type": "string"
     },
     "dscSQLPrepareFunction": {
-      "type": "string"
-    },
-    "dscSQLConfigureModulesUrl": {
-      "type": "string"
-    },
-    "dscSQLConfigureFunction": {
       "type": "string"
     },
     "osDiskStorageType": {
@@ -575,54 +566,6 @@
           },
           "dscFunction": {
             "value": "[parameters('dscSPPrepareFunction')]"
-          }
-        }
-      }
-    },
-    {
-      "name": "[concat('ConfiguringSQL', variables('_versionShortName'))]",
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2015-01-01",
-      "dependsOn": [
-        "[concat('ProvisioningSQL', variables('_versionShortName'))]",
-        "[concat('ProvisioningSP', variables('_versionShortName'))]"
-      ],
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[parameters('urlConfiguringSQLServer')]",
-          "contentVersion": "1.0.0.0"
-        },
-        "parameters": {
-          "vmName": {
-            "value": "[variables('sqlVMName')]"
-          },
-          "userAdminUsername": {
-            "value": "[parameters('userAdminUsername')]"
-          },
-          "userAdminPassword": {
-            "value": "[parameters('userAdminPassword')]"
-          },
-          "dscModulesUrl": {
-            "value": "[parameters('dscSQLConfigureModulesUrl')]"
-          },
-          "dscFunction": {
-            "value": "[parameters('dscSQLConfigureFunction')]"
-          },
-          "domainName": {
-            "value": "[parameters('domainName')]"
-          },
-          "userSQLServiceUsername": {
-            "value": "[parameters('userSQLServiceUsername')]"
-          },
-          "userSQLServicePassword": {
-            "value": "[parameters('userSQLServicePassword')]"
-          },
-          "userSPSetupUsername": {
-            "value": "[parameters('userSPSetupUsername')]"
-          },
-          "userSPSetupPassword": {
-            "value": "[parameters('userSPSetupPassword')]"
           }
         }
       }

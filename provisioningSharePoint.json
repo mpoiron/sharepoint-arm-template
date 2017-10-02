@@ -124,7 +124,7 @@
     },
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(parameters('vmName'),'/ConfigureSPServer')]",
+      "name": "[concat(parameters('vmName'),'/InstallSharePointServer')]",
       "apiVersion": "2015-06-15",
       "dependsOn": [
         "[concat('Microsoft.Compute/virtualMachines/', parameters('vmName'))]"

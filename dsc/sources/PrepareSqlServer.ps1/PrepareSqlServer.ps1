@@ -38,6 +38,32 @@ configuration PrepareSqlServer
             RebootNodeIfNeeded = $true
         }
 
+		WindowsFeature RSAT-DNS
+		{
+			Ensure = "Present"
+			Name = "RSAT-DNS-Server"
+		}
+		WindowsFeature RSAT-AD-AdminCenter
+		{
+			Ensure = 'Present'
+			Name   = 'RSAT-AD-AdminCenter'
+		}
+		WindowsFeature RSAT-ADDS
+		{
+			Ensure = 'Present'
+			Name   = 'RSAT-ADDS'
+		}
+		WindowsFeature RSAT-AD-PowerShell
+		{
+			Ensure = 'Present'
+			Name   = 'RSAT-AD-PowerShell'
+		}
+		WindowsFeature RSAT-AD-Tools
+		{
+			Ensure = 'Present'
+			Name   = 'RSAT-AD-Tools'
+		}
+
         xCredSSP Server
         {
             Ensure = "Present"

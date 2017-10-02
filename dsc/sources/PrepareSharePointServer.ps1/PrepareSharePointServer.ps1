@@ -52,6 +52,32 @@ configuration PrepareSharePointServer
             DelegateComputers = "*.$Domain", "localhost"
         }
 
+		WindowsFeature RSAT-DNS
+		{
+			Ensure = "Present"
+			Name = "RSAT-DNS-Server"
+		}
+		WindowsFeature RSAT-AD-AdminCenter
+		{
+			Ensure = 'Present'
+			Name   = 'RSAT-AD-AdminCenter'
+		}
+		WindowsFeature RSAT-ADDS
+		{
+			Ensure = 'Present'
+			Name   = 'RSAT-ADDS'
+		}
+		WindowsFeature RSAT-AD-PowerShell
+		{
+			Ensure = 'Present'
+			Name   = 'RSAT-AD-PowerShell'
+		}
+		WindowsFeature RSAT-AD-Tools
+		{
+			Ensure = 'Present'
+			Name   = 'RSAT-AD-Tools'
+		}
+
         xWaitforDisk Disk2
         {
             DiskNumber = 2
@@ -113,32 +139,6 @@ configuration PrepareSharePointServer
             Ensure = "Present"
             DependsOn = "[xComputer]DomainJoin"
         }
-
-		WindowsFeature RSAT-DNS
-		{
-			Ensure = "Present"
-			Name = "RSAT-DNS-Server"
-		}
-		WindowsFeature RSAT-AD-AdminCenter
-		{
-			Ensure = 'Present'
-			Name   = 'RSAT-AD-AdminCenter'
-		}
-		WindowsFeature RSAT-ADDS
-		{
-			Ensure = 'Present'
-			Name   = 'RSAT-ADDS'
-		}
-		WindowsFeature RSAT-AD-PowerShell
-		{
-			Ensure = 'Present'
-			Name   = 'RSAT-AD-PowerShell'
-		}
-		WindowsFeature RSAT-AD-Tools
-		{
-			Ensure = 'Present'
-			Name   = 'RSAT-AD-Tools'
-		}
     }
 }
 

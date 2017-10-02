@@ -36,7 +36,7 @@
   "resources": [
     {
       "type": "Microsoft.Compute/virtualMachines/extensions",
-      "name": "[concat(parameters('vmName'),'/ConfigureSPServer')]",
+      "name": "[concat(parameters('vmName'),'/ConfigureSPServer_old')]",
       "apiVersion": "2015-06-15",
       "location": "[resourceGroup().location]",
       "properties": {

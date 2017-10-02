@@ -8,13 +8,10 @@
     "vmSize": {
       "type": "string"
     },
-    "dscModulesUrl": {
-      "type": "string"
-    },
-    "dscFunction": {
-      "type": "string"
-    },
     "domainName": {
+      "type": "string"
+    },
+    "availabilitySetName": {
       "type": "string"
     },
     "userAdminUsername": {
@@ -38,9 +35,6 @@
     "storageAccountName": {
       "type": "string"
     },
-    "availabilitySetName": {
-      "type": "string"
-    },
     "nicName": {
       "type": "string"
     },
@@ -58,6 +52,12 @@
       "type": "string"
     },
     "dataDiskStorageType": {
+      "type": "string"
+    },
+    "dscModulesUrl": {
+      "type": "string"
+    },
+    "dscFunction": {
       "type": "string"
     }
   },

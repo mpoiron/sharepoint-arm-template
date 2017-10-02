@@ -528,6 +528,9 @@
           "vmSize": {
             "value": "[parameters('spVMSize')]"
           },
+          "domainName": {
+            "value": "[parameters('domainName')]"
+          },
           "availabilitySetName": {
             "value": "[variables('spAvailabilitySetName')]"
           },
@@ -555,12 +558,6 @@
           "nicName": {
             "value": "[variables('spNicName')]"
           },
-          "dscModulesUrl": {
-            "value": "[parameters('dscSPPrepareModulesUrl')]"
-          },
-          "dscFunction": {
-            "value": "[parameters('dscSPPrepareFunction')]"
-          },
           "dnsServerAddress": {
             "value": "[parameters('adNicAddress')]"
           },
@@ -572,6 +569,12 @@
           },
           "dataDiskStorageType": {
             "value": "[parameters('dataDiskStorageType')]"
+          },
+          "dscModulesUrl": {
+            "value": "[parameters('dscSPPrepareModulesUrl')]"
+          },
+          "dscFunction": {
+            "value": "[parameters('dscSPPrepareFunction')]"
           }
         }
       }

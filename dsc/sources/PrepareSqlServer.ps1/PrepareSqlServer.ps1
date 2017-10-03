@@ -6,6 +6,9 @@ configuration PrepareSqlServer
         [String]$DnsServer,
 
         [Parameter(Mandatory)]
+        [String]$DomainName,
+
+        [Parameter(Mandatory)]
         [System.Management.Automation.PSCredential]$AdminCreds,
 
         [Parameter(Mandatory)]
